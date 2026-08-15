@@ -9,15 +9,14 @@ export const MEDIA_TYPES = {
   ANIME: 'anime'
 };
 
-// Rich curated dataset of popular movies, TV shows, and anime
 export const FEATURED_DATASET = [
   {
     id: 101,
     title: "Dune: Part Two",
     original_title: "Dune: Part Two",
     type: "movie",
-    poster: "https://image.tmdb.org/t/p/w500/1pdfLPoLcGh9-6uCwrmp0d2ImzZ.jpg",
-    backdrop: "https://image.tmdb.org/t/p/w500/xOM08GoAFMu4Wor2xR2d4hM1me0.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg",
+    backdrop: "https://image.tmdb.org/t/p/w1280/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
     rating: 8.6,
     year: "2024",
     quality: "4K UHD",
@@ -37,8 +36,8 @@ export const FEATURED_DATASET = [
     title: "Arcane: Season 2",
     original_title: "Arcane",
     type: "tv",
-    poster: "https://image.tmdb.org/t/p/w500/fq24874c.jpg",
-    backdrop: "https://image.tmdb.org/t/p/w500/56v2KjBlU4XaOv9r1kyp7d8Bx67.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg",
+    backdrop: "https://image.tmdb.org/t/p/w1280/q8eejQcg1bAqImEV8jh8RtBD4uH.jpg",
     rating: 9.0,
     year: "2024",
     quality: "4K UHD",
@@ -333,9 +332,24 @@ export const ANIME_LIST = [
   }
 ];
 
-export let cacheMovies = null;
-export let cacheTv = null;
-export let cacheAnime = null;
+function loadCachedStorage(key, fallback = null) {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return fallback;
+}
+
+function saveCachedStorage(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {}
+}
+
+export let cacheMovies = loadCachedStorage('neonflix_movies', null);
+export let cacheTv = loadCachedStorage('neonflix_tv', null);
+export let cacheAnime = loadCachedStorage('neonflix_anime', null);
+export let cacheKorean = loadCachedStorage('neonflix_korean', null);
 
 export function getMoviesList() {
   return cacheMovies || MOVIES_LIST;
@@ -349,12 +363,17 @@ export function getAnimeList() {
   return cacheAnime || ANIME_LIST;
 }
 
+export function getKoreanList() {
+  return cacheKorean || [];
+}
+
 // Helper to getAllMedia combined
 export function getAllMedia() {
   const movies = getMoviesList();
   const tv = getTvShowsList();
   const anime = getAnimeList();
-  return [...movies, ...tv, ...anime, ...FEATURED_DATASET];
+  const korean = getKoreanList();
+  return [...movies, ...tv, ...anime, ...korean, ...FEATURED_DATASET];
 }
 
 // Search Function
@@ -377,10 +396,18 @@ export function filterMedia(type = 'all', genre = 'all') {
   }
   
   if (genre !== 'all') {
-    list = list.filter(item => item.genres && item.genres.some(g => g.toLowerCase() === genre.toLowerCase()));
+    const gLower = genre.toLowerCase().trim();
+    if (gLower === 'korean' || gLower === 'k-drama') {
+      const kList = getKoreanList();
+      const filtered = list.filter(item => item.genres && item.genres.some(g => g.toLowerCase() === 'korean'));
+      list = filtered.length > 0 ? filtered : (kList.length > 0 ? kList : list);
+    } else {
+      list = list.filter(item => item.genres && item.genres.some(g => g.toLowerCase() === gLower));
+    }
   }
   
-  return list;
+  // Sort items by rating in descending order so top trending items remain at the top!
+  return list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 }
 
 // --- LIVE TMDB API SUPPORT ---
@@ -401,6 +428,28 @@ const GENRE_MAP = {
   10762: 'Kids', 10763: 'News', 10764: 'Reality', 10765: 'Sci-Fi & Fantasy', 10766: 'Soap',
   10767: 'Talk', 10768: 'War & Politics'
 };
+
+const LANGUAGE_MAP = {
+  hi: 'Hindi',
+  en: 'English',
+  pa: 'Punjabi',
+  ko: 'Korean',
+  ja: 'Japanese',
+  ta: 'Tamil',
+  te: 'Telugu',
+  ur: 'Urdu',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  zh: 'Chinese',
+  cn: 'Chinese'
+};
+
+function getLanguageLabel(langCode) {
+  if (!langCode) return 'Hindi';
+  const code = langCode.toLowerCase().trim();
+  return LANGUAGE_MAP[code] || (code.charAt(0).toUpperCase() + code.slice(1));
+}
 
 function getGenreNames(genreIds) {
   const names = (genreIds || []).map(id => GENRE_MAP[id]).filter(Boolean);
@@ -439,6 +488,8 @@ function mapTmdbItem(item, mediaType) {
     { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
   ] : [];
 
+  const lang = getLanguageLabel(item.original_language);
+
   return {
     id: tmdbId,
     title: item.title || item.name || 'Untitled',
@@ -447,8 +498,15 @@ function mapTmdbItem(item, mediaType) {
     backdrop: backdropUrl,
     rating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 7.0,
     year: (item.release_date || item.first_air_date || '2024').substring(0, 4),
-    quality: "4K UHD",
-    genres: getGenreNames(item.genre_ids || []),
+    quality: lang,
+    language: lang,
+    genres: (() => {
+      const gNames = getGenreNames(item.genre_ids || []);
+      if (item.original_language === 'ko' && !gNames.includes('Korean')) {
+        gNames.unshift('Korean');
+      }
+      return gNames;
+    })(),
     overview: item.overview || 'No description available.',
     servers: servers,
     seasons: seasons,
@@ -456,18 +514,23 @@ function mapTmdbItem(item, mediaType) {
   };
 }
 
-export async function fetchLiveTrendingMovies() {
+export async function fetchLiveTrendingMovies(page = 1) {
   const apiKey = getApiKey();
   if (!apiKey) {
     cacheMovies = null;
     return MOVIES_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}`);
+    const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}&page=${page}`);
     const data = await res.json();
     if (data && data.results) {
-      const items = data.results.slice(0, 12).map(item => mapTmdbItem(item, 'movie'));
-      cacheMovies = items;
+      const items = data.results.map(item => mapTmdbItem(item, 'movie'));
+      if (page === 1) {
+        cacheMovies = items;
+        saveCachedStorage('neonflix_movies', items);
+      } else {
+        cacheMovies = [...(cacheMovies || []), ...items];
+      }
       return items;
     }
   } catch (e) {
@@ -476,18 +539,23 @@ export async function fetchLiveTrendingMovies() {
   return MOVIES_LIST;
 }
 
-export async function fetchLivePopularTv() {
+export async function fetchLivePopularTv(page = 1) {
   const apiKey = getApiKey();
   if (!apiKey) {
     cacheTv = null;
     return TV_SHOWS_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}`);
+    const res = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&page=${page}`);
     const data = await res.json();
     if (data && data.results) {
-      const items = data.results.slice(0, 12).map(item => mapTmdbItem(item, 'tv'));
-      cacheTv = items;
+      const items = data.results.map(item => mapTmdbItem(item, 'tv'));
+      if (page === 1) {
+        cacheTv = items;
+        saveCachedStorage('neonflix_tv', items);
+      } else {
+        cacheTv = [...(cacheTv || []), ...items];
+      }
       return items;
     }
   } catch (e) {
@@ -496,24 +564,54 @@ export async function fetchLivePopularTv() {
   return TV_SHOWS_LIST;
 }
 
-export async function fetchLiveAnime() {
+export async function fetchLiveAnime(page = 1) {
   const apiKey = getApiKey();
   if (!apiKey) {
     cacheAnime = null;
     return ANIME_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`);
+    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`);
     const data = await res.json();
     if (data && data.results) {
-      const items = data.results.slice(0, 12).map(item => mapTmdbItem(item, 'tv'));
-      cacheAnime = items;
+      const items = data.results.map(item => mapTmdbItem(item, 'tv'));
+      if (page === 1) {
+        cacheAnime = items;
+        saveCachedStorage('neonflix_anime', items);
+      } else {
+        cacheAnime = [...(cacheAnime || []), ...items];
+      }
       return items;
     }
   } catch (e) {
     console.error("Live anime failed", e);
   }
   return ANIME_LIST;
+}
+
+export async function fetchLiveKoreanMedia(page = 1) {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    cacheKorean = null;
+    return [];
+  }
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}`);
+    const data = await res.json();
+    if (data && data.results) {
+      const items = data.results.map(item => mapTmdbItem(item, 'tv'));
+      if (page === 1) {
+        cacheKorean = items;
+        saveCachedStorage('neonflix_korean', items);
+      } else {
+        cacheKorean = [...(cacheKorean || []), ...items];
+      }
+      return items;
+    }
+  } catch (e) {
+    console.error("Live Korean media failed", e);
+  }
+  return [];
 }
 
 
@@ -532,5 +630,94 @@ export async function fetchLiveSearch(query) {
     console.error("Live search failed", e);
   }
   return searchMedia(query);
+}
+
+function getGenreIdByName(name) {
+  const n = name.toLowerCase().trim();
+  if (n === 'anime') return 16;
+  if (n === 'korean' || n === 'k-drama') return 'ko';
+  for (const [id, val] of Object.entries(GENRE_MAP)) {
+    if (val.toLowerCase() === n) {
+      return parseInt(id, 10);
+    }
+  }
+  return null;
+}
+
+export async function fetchLiveGenreMedia(type, genre, page = 1) {
+  const apiKey = getApiKey();
+  if (!apiKey) return [];
+
+  const genreId = getGenreIdByName(genre);
+  if (!genreId && genre.toLowerCase() !== 'all') return [];
+
+  try {
+    let url = '';
+    let mediaType = 'movie';
+
+    if (genreId === 'ko' || genre.toLowerCase() === 'korean') {
+      mediaType = 'tv';
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}`;
+    } else if (type === 'movie') {
+      mediaType = 'movie';
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}`;
+      if (genreId) url += `&with_genres=${genreId}`;
+    } else if (type === 'tv') {
+      mediaType = 'tv';
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}`;
+      if (genreId) url += `&with_genres=${genreId}`;
+    } else if (type === 'anime') {
+      mediaType = 'tv';
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
+    } else {
+      // For type === 'all' or 'home'
+      const isNumGenre = typeof genreId === 'number';
+      const [moviesRes, tvRes] = await Promise.all([
+        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json())
+      ]);
+
+      const movieItems = (moviesRes.results || []).map(item => mapTmdbItem(item, 'movie'));
+      const tvItems = (tvRes.results || []).map(item => mapTmdbItem(item, 'tv'));
+
+      const combined = [];
+      const maxLength = Math.max(movieItems.length, tvItems.length);
+      for (let i = 0; i < maxLength; i++) {
+        if (i < movieItems.length) combined.push(movieItems[i]);
+        if (i < tvItems.length) combined.push(tvItems[i]);
+      }
+      return combined;
+    }
+
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.results) {
+      return data.results.map(item => mapTmdbItem(item, mediaType));
+    }
+  } catch (e) {
+    console.error(`Discover genre ${genre} failed`, e);
+  }
+  return [];
+}
+
+export async function fetchMovieTrailer(tmdbId, type = 'movie') {
+  const apiKey = getApiKey();
+  if (!apiKey || !tmdbId) return null;
+  
+  const endpointType = (type === 'movie') ? 'movie' : 'tv';
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/${endpointType}/${tmdbId}/videos?api_key=${apiKey}`);
+    const data = await res.json();
+    if (data && data.results && data.results.length > 0) {
+      const trailer = data.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') || 
+                      data.results.find(v => v.site === 'YouTube');
+      if (trailer) {
+        return trailer.key;
+      }
+    }
+  } catch (e) {
+    console.error("Fetch TMDB trailer failed", e);
+  }
+  return null;
 }
 

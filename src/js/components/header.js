@@ -1,18 +1,13 @@
 // ----------------------------------------------------
-// HEADER & NAVIGATION DRAWER COMPONENT
-// Top bar, side drawer menu, and mobile bottom bar
+// HEADER & NAVIGATION COMPONENT
+// Top header bar & mobile bottom bar (Side drawer menu removed)
 // ----------------------------------------------------
 
 export function renderHeader(containerEl, onNavSelect, onSearchClick) {
   const headerHTML = `
     <header class="site-header" id="siteHeader">
-      <!-- Left: Drawer Toggle & Brand Logo -->
+      <!-- Left: Brand Logo -->
       <div class="logo-container">
-        <button type="button" class="menu-toggle-btn" id="openDrawerBtn" aria-label="Open Navigation Menu">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="22" width="22">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
         <a href="#" class="neonflix-logo" id="logoBtn">
           <div class="logo-icon">N</div>
           <span class="gradient-text">Neonflix</span>
@@ -29,7 +24,7 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
         </button>
       </div>
 
-      <!-- Right: User Profile (No Download link!) -->
+      <!-- Right: User Profile -->
       <div class="header-right-actions">
         <button type="button" class="icon-circle-btn" id="profileBtn" aria-label="User Profile">
           <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="22" width="22">
@@ -38,65 +33,6 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
         </button>
       </div>
     </header>
-
-    <!-- Side Navigation Drawer -->
-    <div class="drawer-overlay" id="drawerOverlay"></div>
-    <div class="side-drawer" id="sideDrawer">
-      <div class="drawer-header">
-        <div class="neonflix-logo">
-          <div class="logo-icon">N</div>
-          <span class="gradient-text">Neonflix</span>
-        </div>
-        <button type="button" class="icon-circle-btn" id="closeDrawerBtn" aria-label="Close menu">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-
-      <ul class="drawer-nav-list">
-        <li class="drawer-nav-item active" data-tab="home">
-          <button type="button">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-            </svg>
-            <span>Home</span>
-          </button>
-        </li>
-        <li class="drawer-nav-item" data-tab="movie">
-          <button type="button">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
-            </svg>
-            <span>Movies</span>
-          </button>
-        </li>
-        <li class="drawer-nav-item" data-tab="tv">
-          <button type="button">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-            </svg>
-            <span>TV Shows</span>
-          </button>
-        </li>
-        <li class="drawer-nav-item" data-tab="anime">
-          <button type="button">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-            </svg>
-            <span>Anime</span>
-          </button>
-        </li>
-        <li class="drawer-nav-item" data-tab="watchlist">
-          <button type="button">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-            </svg>
-            <span>My Watchlist</span>
-          </button>
-        </li>
-      </ul>
-    </div>
 
     <!-- Mobile Floating Bottom Navigation Bar -->
     <div class="mobile-bottom-bar">
@@ -133,27 +69,9 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
   containerEl.innerHTML = headerHTML;
 
   // Bind Header Event Listeners
-  const openDrawerBtn = document.getElementById('openDrawerBtn');
-  const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-  const sideDrawer = document.getElementById('sideDrawer');
-  const drawerOverlay = document.getElementById('drawerOverlay');
   const headerSearchBtn = document.getElementById('headerSearchBtn');
   const mobileSearchBtn = document.getElementById('mobileSearchBtn');
   const logoBtn = document.getElementById('logoBtn');
-
-  function openDrawer() {
-    sideDrawer.classList.add('active');
-    drawerOverlay.classList.add('active');
-  }
-
-  function closeDrawer() {
-    sideDrawer.classList.remove('active');
-    drawerOverlay.classList.remove('active');
-  }
-
-  openDrawerBtn.addEventListener('click', openDrawer);
-  closeDrawerBtn.addEventListener('click', closeDrawer);
-  drawerOverlay.addEventListener('click', closeDrawer);
 
   headerSearchBtn?.addEventListener('click', onSearchClick);
   mobileSearchBtn?.addEventListener('click', onSearchClick);
@@ -163,21 +81,15 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
     onNavSelect('home');
   });
 
-  // Handle Nav Tab Switching (Side Drawer & Mobile Bottom Bar)
-  const allNavItems = document.querySelectorAll('.drawer-nav-item, .nav-tab-btn');
+  // Handle Nav Tab Switching
+  const allNavItems = document.querySelectorAll('.nav-tab-btn');
   allNavItems.forEach(item => {
     item.addEventListener('click', () => {
       const tab = item.getAttribute('data-tab');
       if (tab) {
-        // Update active class
-        document.querySelectorAll('.drawer-nav-item').forEach(el => {
-          el.classList.toggle('active', el.getAttribute('data-tab') === tab);
-        });
         document.querySelectorAll('.nav-tab-btn').forEach(el => {
           el.classList.toggle('active', el.getAttribute('data-tab') === tab);
         });
-
-        closeDrawer();
         onNavSelect(tab);
       }
     });

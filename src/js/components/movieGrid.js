@@ -6,10 +6,6 @@ import { getAllMedia } from '../api.js';
 // ----------------------------------------------------
 
 export function renderMediaCard(item) {
-  const isMovie = item.type === 'movie';
-  const isAnime = item.type === 'anime';
-  const badgeLabel = isMovie ? 'Movie' : (isAnime ? 'Anime' : 'TV Series');
-
   return `
     <div class="poster-card" data-id="${item.id}" data-type="${item.type}">
       <div class="poster-image-wrap">
@@ -17,7 +13,6 @@ export function renderMediaCard(item) {
         <div class="poster-overlay-gradient"></div>
         
         <div class="card-top-badges">
-          <span class="type-chip">${badgeLabel}</span>
           <span class="rating-chip">
             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="12" width="12">
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
@@ -31,7 +26,6 @@ export function renderMediaCard(item) {
         <h3 class="card-title" title="${item.title}">${item.title}</h3>
         <div class="card-meta-row">
           <span>${item.year}</span>
-          <span>${item.quality || 'HD'}</span>
         </div>
       </div>
     </div>
@@ -43,7 +37,7 @@ export function renderGenreFilterBar(containerEl, genres, activeGenre, onSelectG
     <div class="category-filter-section">
       <div class="genre-scroll-bar">
         <button type="button" class="genre-pill ${activeGenre === 'all' ? 'active' : ''}" data-genre="all">
-          🔥 All Categories
+          🏠 Home
         </button>
         ${genres.map(g => `
           <button type="button" class="genre-pill ${activeGenre === g ? 'active' : ''}" data-genre="${g}">
@@ -97,7 +91,51 @@ export function renderMediaGridSection(containerEl, title, items, onItemClick) {
   });
 }
 
-export function renderMediaCarouselSection(containerEl, title, items, type, loadMoreFn, onItemClick) {
+export function enableDragScroll(carousel) {
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+  let hasMoved = false;
+
+  carousel.addEventListener('mousedown', (e) => {
+    isDown = true;
+    hasMoved = false;
+    carousel.classList.add('grabbing');
+    startX = e.pageX - carousel.offsetLeft;
+    scrollLeft = carousel.scrollLeft;
+  });
+
+  carousel.addEventListener('mouseleave', () => {
+    isDown = false;
+    carousel.classList.remove('grabbing');
+  });
+
+  carousel.addEventListener('mouseup', () => {
+    isDown = false;
+    carousel.classList.remove('grabbing');
+  });
+
+  carousel.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - carousel.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    if (Math.abs(x - startX) > 8) {
+      hasMoved = true;
+    }
+    carousel.scrollLeft = scrollLeft - walk;
+  });
+
+  // Intercept click event on card drag to prevent launching player when swiping
+  carousel.addEventListener('click', (e) => {
+    if (hasMoved) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, true);
+}
+
+export function renderMediaCarouselSection(containerEl, title, items, type, loadMoreFn, onItemClick, onSeeAllClick) {
   if (!items || items.length === 0) return;
 
   let currentPage = 1;
@@ -111,10 +149,33 @@ export function renderMediaCarouselSection(containerEl, title, items, type, load
           <span class="title-accent"></span>
           <span>${title}</span>
         </h2>
+        
+        <button type="button" class="see-all-btn" id="see-all-${type}">
+          <span>See All</span>
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="15" width="15">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
       </div>
 
-      <div class="media-carousel" id="carousel-${type}">
-        ${items.map(item => renderMediaCard(item)).join('')}
+      <div class="media-carousel-wrapper">
+        <!-- Left Scroll Button -->
+        <button type="button" class="carousel-arrow carousel-arrow-left" id="arrow-left-${type}" aria-label="Scroll Left">
+          <svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24" height="20" width="20">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+
+        <div class="media-carousel" id="carousel-${type}">
+          ${items.map(item => renderMediaCard(item)).join('')}
+        </div>
+
+        <!-- Right Scroll Button -->
+        <button type="button" class="carousel-arrow carousel-arrow-right" id="arrow-right-${type}" aria-label="Scroll Right">
+          <svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24" height="20" width="20">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
       </div>
     </section>
   `;
@@ -122,6 +183,13 @@ export function renderMediaCarouselSection(containerEl, title, items, type, load
   containerEl.insertAdjacentHTML('beforeend', carouselHTML);
 
   const carousel = document.getElementById(`carousel-${type}`);
+  const arrowLeft = document.getElementById(`arrow-left-${type}`);
+  const arrowRight = document.getElementById(`arrow-right-${type}`);
+  const seeAllBtn = document.getElementById(`see-all-${type}`);
+
+  if (seeAllBtn && onSeeAllClick) {
+    seeAllBtn.addEventListener('click', onSeeAllClick);
+  }
   
   function bindClicks(parentEl) {
     parentEl.querySelectorAll('.poster-card').forEach(card => {
@@ -138,9 +206,37 @@ export function renderMediaCarouselSection(containerEl, title, items, type, load
   }
 
   bindClicks(carousel);
+  enableDragScroll(carousel);
+
+  // Smooth button scrolling
+  arrowLeft.addEventListener('click', () => {
+    carousel.scrollBy({ left: -carousel.clientWidth * 0.75, behavior: 'smooth' });
+  });
+
+  arrowRight.addEventListener('click', () => {
+    carousel.scrollBy({ left: carousel.clientWidth * 0.75, behavior: 'smooth' });
+  });
+
+  // Dynamically show/hide control arrows depending on scrollable status
+  function updateArrowVisibility() {
+    if (carousel.scrollLeft <= 5) {
+      arrowLeft.classList.remove('visible');
+    } else {
+      arrowLeft.classList.add('visible');
+    }
+
+    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+    if (carousel.scrollLeft >= maxScroll - 5) {
+      arrowRight.classList.remove('visible');
+    } else {
+      arrowRight.classList.add('visible');
+    }
+  }
 
   // Scroll listener to load more posters as user moves carousel
   carousel.addEventListener('scroll', async () => {
+    updateArrowVisibility();
+
     if (loading) return;
     
     if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 350) {
@@ -162,6 +258,7 @@ export function renderMediaCarouselSection(containerEl, title, items, type, load
           const cardsHTML = newItems.map(item => renderMediaCard(item)).join('');
           carousel.insertAdjacentHTML('beforeend', cardsHTML);
           bindClicks(carousel);
+          updateArrowVisibility();
         }
       } catch (e) {
         console.error("Load more carousel failed", e);
@@ -171,4 +268,7 @@ export function renderMediaCarouselSection(containerEl, title, items, type, load
       }
     }
   });
+
+  // Set initial visibility status
+  setTimeout(updateArrowVisibility, 150);
 }

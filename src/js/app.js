@@ -14,6 +14,7 @@ import {
   getMoviesList,
   getTvShowsList,
   getAnimeList,
+  getKoreanList,
   getAllMedia, 
   filterMedia,
   getApiKey,
@@ -21,13 +22,18 @@ import {
   fetchLiveTrendingMovies,
   fetchLivePopularTv,
   fetchLiveAnime,
-  fetchLiveSearch
+  fetchLiveKoreanMedia,
+  fetchLiveSearch,
+  fetchLiveGenreMedia
 } from './api.js';
 
 let currentTab = 'home';
 let activeGenre = 'all';
+let activeSeeAllSection = null; // 'movie' | 'tv' | 'anime' | 'korean'
+let verticalPages = { movie: 1, tv: 1, anime: 1, korean: 1 };
+let loadingVertical = false;
 
-const GENRES_LIST = ['Action', 'Sci-Fi', 'Drama', 'Adventure', 'Anime', 'Comedy', 'Horror', 'Fantasy', 'Crime'];
+const GENRES_LIST = ['Action', 'Sci-Fi', 'Drama', 'Adventure', 'Anime', 'Korean', 'Comedy', 'Horror', 'Fantasy', 'Crime'];
 
 function openPlayerForItem(item) {
   const playerContainer = document.getElementById('playerModalContainer');
@@ -57,12 +63,58 @@ function renderMainView() {
     return;
   }
 
+  // Handle dedicated "See All" section view
+  if (activeSeeAllSection) {
+    const sectionInfoMap = {
+      movie: { title: '🔥 All Trending Movies', loadFn: fetchLiveTrendingMovies, getItems: getMoviesList, type: 'movie' },
+      tv: { title: '📺 All Popular TV Series', loadFn: fetchLivePopularTv, getItems: getTvShowsList, type: 'tv' },
+      anime: { title: '⚡ All Latest Anime Releases', loadFn: fetchLiveAnime, getItems: getAnimeList, type: 'anime' },
+      korean: { title: 'All Popular Korean Dramas', loadFn: fetchLiveKoreanMedia, getItems: getKoreanList, type: 'korean' }
+    };
+
+    const sec = sectionInfoMap[activeSeeAllSection];
+    const initialItems = sec ? sec.getItems() : [];
+
+    const headerWrapper = document.createElement('div');
+    headerWrapper.style = "max-width:1400px; margin: 1.5rem auto 0.5rem auto; padding: 0 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;";
+    headerWrapper.innerHTML = `
+      <div style="display:flex; align-items:center; gap: 1rem;">
+        <button type="button" id="backToHomeBtn" class="btn-secondary-info" style="height: 40px; padding: 0 1rem; font-size: 0.85rem;">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          <span>Back to Home</span>
+        </button>
+        <h1 style="font-size: 1.6rem; font-weight: 800;">${sec ? sec.title : 'All Results'}</h1>
+      </div>
+    `;
+    mainContent.appendChild(headerWrapper);
+
+    headerWrapper.querySelector('#backToHomeBtn')?.addEventListener('click', () => {
+      activeSeeAllSection = null;
+      renderMainView();
+    });
+
+    renderMediaGridSection(mainContent, '', initialItems, openPlayerForItem);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
   // Render Hero Section
   const heroWrapper = document.createElement('div');
   heroWrapper.id = 'heroWrapper';
   mainContent.appendChild(heroWrapper);
 
-  const featuredItems = currentTab === 'movie' ? getMoviesList() : (currentTab === 'tv' ? getTvShowsList() : (currentTab === 'anime' ? getAnimeList() : FEATURED_DATASET));
+  let featuredItems = FEATURED_DATASET;
+  if (currentTab === 'movie') {
+    featuredItems = getMoviesList();
+  } else if (currentTab === 'tv') {
+    featuredItems = getTvShowsList();
+  } else if (currentTab === 'anime') {
+    featuredItems = getAnimeList();
+  } else {
+    featuredItems = getMoviesList().length > 0 ? getMoviesList() : FEATURED_DATASET;
+  }
   renderHeroSlider(heroWrapper, featuredItems, openPlayerForItem, openPlayerForItem);
 
   // Render Genre Filter Bar
@@ -72,16 +124,86 @@ function renderMainView() {
 
   renderGenreFilterBar(genreWrapper, GENRES_LIST, activeGenre, (selectedGenre) => {
     activeGenre = selectedGenre;
-    renderMainView();
+    
+    // Reset page count for this specific genre filter
+    const pageKey = `${currentTab}_${selectedGenre}`;
+    verticalPages[pageKey] = 1;
+
+    if (selectedGenre !== 'all' && getApiKey()) {
+      renderMainView(); // Draw structural grid container first
+      
+      const gridSection = document.querySelector('.media-grid');
+      if (gridSection) {
+        gridSection.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; min-height:30vh; width:100%; grid-column: 1/-1;"><div style="border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--color-neon-cyan); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite;"></div></div>`;
+      }
+      
+      fetchLiveGenreMedia(currentTab === 'home' ? 'all' : currentTab, selectedGenre, 1).then(genreItems => {
+        if (gridSection) {
+          if (genreItems && genreItems.length > 0) {
+            gridSection.innerHTML = genreItems.map(item => `
+                <div class="poster-card" data-id="${item.id}" data-type="${item.type}">
+                  <div class="poster-image-wrap">
+                    <img class="poster-image" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/15151e/ffffff?text=${encodeURIComponent(item.title)}'" />
+                    <div class="poster-overlay-gradient"></div>
+                    
+                    <div class="card-top-badges">
+                      <span class="rating-chip">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="12" width="12">
+                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+                        </svg>
+                        ${item.rating}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card-content-info">
+                    <h3 class="card-title" title="${item.title}">${item.title}</h3>
+                    <div class="card-meta-row">
+                      <span>${item.year}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('');
+
+            // Bind click handler for newly appended grid items
+            gridSection.querySelectorAll('.poster-card').forEach(card => {
+              card.addEventListener('click', () => {
+                const id = card.getAttribute('data-id');
+                const allItems = getAllMedia();
+                const item = genreItems.find(i => i.id == id) || allItems.find(i => i.id == id);
+                if (item) openPlayerForItem(item);
+              });
+            });
+          } else {
+            gridSection.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 3rem; color:var(--text-muted);">No items found for this category.</div>`;
+          }
+        }
+      });
+    } else {
+      renderMainView();
+    }
   });
 
   // Render Media Grid Sections
   const filteredItems = filterMedia(currentTab === 'home' ? 'all' : currentTab, activeGenre);
 
   if (currentTab === 'home' && activeGenre === 'all') {
-    renderMediaCarouselSection(mainContent, '🔥 Trending Movies', getMoviesList().slice(0, 12), 'movie', fetchLiveTrendingMovies, openPlayerForItem);
-    renderMediaCarouselSection(mainContent, '📺 Popular TV Series', getTvShowsList().slice(0, 12), 'tv', fetchLivePopularTv, openPlayerForItem);
-    renderMediaCarouselSection(mainContent, '⚡ Latest Anime Releases', getAnimeList().slice(0, 12), 'anime', fetchLiveAnime, openPlayerForItem);
+    renderMediaCarouselSection(mainContent, '🔥 Trending Movies', getMoviesList().slice(0, 12), 'movie', fetchLiveTrendingMovies, openPlayerForItem, () => {
+      activeSeeAllSection = 'movie';
+      renderMainView();
+    });
+    renderMediaCarouselSection(mainContent, '📺 Popular TV Series', getTvShowsList().slice(0, 12), 'tv', fetchLivePopularTv, openPlayerForItem, () => {
+      activeSeeAllSection = 'tv';
+      renderMainView();
+    });
+    renderMediaCarouselSection(mainContent, '⚡ Latest Anime Releases', getAnimeList().slice(0, 12), 'anime', fetchLiveAnime, openPlayerForItem, () => {
+      activeSeeAllSection = 'anime';
+      renderMainView();
+    });
+    renderMediaCarouselSection(mainContent, 'All Popular Korean Dramas', getKoreanList().slice(0, 12), 'korean', fetchLiveKoreanMedia, openPlayerForItem, () => {
+      activeSeeAllSection = 'korean';
+      renderMainView();
+    });
   } else {
     const titleMap = {
       home: `Results (${filteredItems.length})`,
@@ -91,8 +213,6 @@ function renderMainView() {
     };
     renderMediaGridSection(mainContent, titleMap[currentTab], filteredItems, openPlayerForItem);
   }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function loadLiveData() {
@@ -101,7 +221,8 @@ async function loadLiveData() {
     await Promise.all([
       fetchLiveTrendingMovies(),
       fetchLivePopularTv(),
-      fetchLiveAnime()
+      fetchLiveAnime(),
+      fetchLiveKoreanMedia()
     ]);
   }
 }
@@ -113,12 +234,19 @@ function initApp() {
   renderHeader(headerApp, (selectedTab) => {
     currentTab = selectedTab;
     activeGenre = 'all';
+    activeSeeAllSection = null;
+    verticalPages = { movie: 1, tv: 1, anime: 1, korean: 1 };
     renderMainView();
   }, openSearchModal);
 
-  // Load live TMDB data and re-render once done
+  // 1. Instant 0ms First Render from Local Cache
+  renderMainView();
+
+  // 2. Background Stale-While-Revalidate Sync with TMDB
   loadLiveData().then(() => {
-    renderMainView();
+    if (currentTab === 'home' && activeGenre === 'all' && !activeSeeAllSection) {
+      renderMainView();
+    }
   });
 
   // Scroll To Top Handler
@@ -133,6 +261,107 @@ function initApp() {
 
   scrollTopBtn?.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Window scroll listener for infinite vertical loading
+  window.addEventListener('scroll', async () => {
+    if (currentTab === 'watchlist') return;
+    if (currentTab === 'home' && activeGenre === 'all' && !activeSeeAllSection) return;
+    if (loadingVertical) return;
+
+    // Check if scrolled near the bottom of the page
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 700) {
+      loadingVertical = true;
+      
+      const targetSec = activeSeeAllSection || currentTab;
+      const pageKey = `${targetSec}_${activeGenre}`;
+      if (!verticalPages[pageKey]) verticalPages[pageKey] = 1;
+      verticalPages[pageKey]++;
+      const nextPage = verticalPages[pageKey];
+      
+      let loadFn = null;
+      if (activeSeeAllSection) {
+        if (activeSeeAllSection === 'movie') loadFn = fetchLiveTrendingMovies;
+        else if (activeSeeAllSection === 'tv') loadFn = fetchLivePopularTv;
+        else if (activeSeeAllSection === 'anime') loadFn = fetchLiveAnime;
+        else if (activeSeeAllSection === 'korean') loadFn = fetchLiveKoreanMedia;
+      } else if (activeGenre === 'all') {
+        if (currentTab === 'movie') loadFn = fetchLiveTrendingMovies;
+        if (currentTab === 'tv') loadFn = fetchLivePopularTv;
+        if (currentTab === 'anime') loadFn = fetchLiveAnime;
+      } else {
+        loadFn = (p) => fetchLiveGenreMedia(currentTab === 'home' ? 'all' : currentTab, activeGenre, p);
+      }
+
+      if (loadFn) {
+        const mainContent = document.getElementById('mainContent');
+        const gridContainer = mainContent.querySelector('.media-grid');
+        
+        // Render simple inline spinner at bottom
+        const loaderEl = document.createElement('div');
+        loaderEl.id = 'vertical-loader';
+        loaderEl.style = "display:flex; justify-content:center; padding: 2.5rem 0; width:100%; grid-column: 1 / -1;";
+        loaderEl.innerHTML = `<div style="border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--color-neon-cyan); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite;"></div>`;
+        
+        if (gridContainer) {
+          gridContainer.appendChild(loaderEl);
+        }
+
+        try {
+          const newItems = await loadFn(nextPage);
+          loaderEl.remove();
+
+          if (newItems && newItems.length > 0 && gridContainer) {
+            const cardsHTML = newItems.map(item => `
+                <div class="poster-card" data-id="${item.id}" data-type="${item.type}">
+                  <div class="poster-image-wrap">
+                    <img class="poster-image" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/15151e/ffffff?text=${encodeURIComponent(item.title)}'" />
+                    <div class="poster-overlay-gradient"></div>
+                    
+                    <div class="card-top-badges">
+                      <span class="rating-chip">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="12" width="12">
+                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+                        </svg>
+                        ${item.rating}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card-content-info">
+                    <h3 class="card-title" title="${item.title}">${item.title}</h3>
+                    <div class="card-meta-row">
+                      <span>${item.year}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('');
+
+            gridContainer.insertAdjacentHTML('beforeend', cardsHTML);
+
+            // Bind click handler for newly appended grid items
+            gridContainer.querySelectorAll('.poster-card').forEach(card => {
+              if (!card.dataset.bound) {
+                card.dataset.bound = "true";
+                card.addEventListener('click', () => {
+                  const id = card.getAttribute('data-id');
+                  const allItems = getAllMedia();
+                  const item = allItems.find(i => i.id == id);
+                  if (item) openPlayerForItem(item);
+                });
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Vertical lazy load failed", e);
+          loaderEl.remove();
+        } finally {
+          loadingVertical = false;
+        }
+      } else {
+        loadingVertical = false;
+      }
+    }
   });
 }
 

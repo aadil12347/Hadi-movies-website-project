@@ -1,12 +1,23 @@
 // ----------------------------------------------------
 // VIDEO PLAYER MODAL & SEASON/EPISODE SELECTOR COMPONENT
-// Multi-server video stream player with episode selection (NO download links)
+// Multi-server video stream player with episode selection & TMDB trailer fetching
 // ----------------------------------------------------
+
+import { fetchMovieTrailer, getApiKey } from '../api.js';
 
 export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedInWatchlist) {
   let currentServerIndex = 0;
   let currentSeasonIndex = 0;
   let currentEpisodeNumber = 1;
+
+  // Lock background scroll when modal is open
+  document.body.style.overflow = 'hidden';
+
+  if (!item.servers) {
+    item.servers = [
+      { name: "Server 1 (Fast)", url: `https://vidsrc.to/embed/${item.type === 'movie' ? 'movie' : 'tv'}/${item.id}` }
+    ];
+  }
 
   const isSeriesOrAnime = (item.type === 'tv' || item.type === 'anime') && item.seasons && item.seasons.length > 0;
 
@@ -42,8 +53,8 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
           <div class="player-controls-bar">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
               <div>
-                <h2 style="font-size:1.3rem; font-weight:800; color:#fff;">${item.title}</h2>
-                <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+                <h2 style="font-size:1.35rem; font-weight:800; color:#fff; line-height:1.3;">${item.title}</h2>
+                <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
                   <span>${item.year}</span>
                   <span>•</span>
                   <span style="color:#ffc107; font-weight:700;">★ ${item.rating}</span>
@@ -52,32 +63,42 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
                 </div>
               </div>
 
-              <!-- Add to Watchlist Action -->
-              <button type="button" class="btn-secondary-info" id="modalWatchlistBtn" style="height:42px; padding:0 1.25rem; font-size:0.9rem;">
-                <svg stroke="currentColor" fill="${isSavedInWatchlist ? '#00f2fe' : 'none'}" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                </svg>
-                <span>${isSavedInWatchlist ? 'Saved' : '+ Watchlist'}</span>
-              </button>
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <!-- Watch Trailer Button -->
+                <button type="button" class="btn-primary-play" id="playTrailerBtn" style="height:42px; padding:0 1.25rem; font-size:0.88rem;">
+                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="18" width="18">
+                    <path d="M8 5v14l11-7z"></path>
+                  </svg>
+                  <span>Trailer</span>
+                </button>
+
+                <!-- Add to Watchlist Action -->
+                <button type="button" class="btn-secondary-info" id="modalWatchlistBtn" style="height:42px; padding:0 1.25rem; font-size:0.88rem;">
+                  <svg stroke="currentColor" fill="${isSavedInWatchlist ? '#00f2fe' : 'none'}" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                  </svg>
+                  <span>${isSavedInWatchlist ? 'Saved' : '+ Watchlist'}</span>
+                </button>
+              </div>
             </div>
 
             <!-- Server Selector Pills -->
-            <div class="server-selector-row">
+            <div class="server-selector-row" id="serversRow">
               <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">SELECT SERVER:</span>
-              ${(item.servers || [{ name: 'Server 1 (Trailer)', url: getActiveEmbedUrl() }]).map((srv, idx) => `
+              ${item.servers.map((srv, idx) => `
                 <button type="button" class="server-btn ${idx === currentServerIndex ? 'active' : ''}" data-index="${idx}">
                   ${srv.name}
                 </button>
               `).join('')}
             </div>
 
-            <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6;">${item.overview}</p>
+            <p style="font-size:0.92rem; color:var(--text-muted); line-height:1.65; margin:0;">${item.overview}</p>
           </div>
 
           <!-- Season & Episode Selector (For TV Series / Anime) -->
           ${isSeriesOrAnime ? `
             <div class="episodes-section">
-              <div style="display:flex; align-items:center; gap:0.75rem; overflow-x:auto;">
+              <div style="display:flex; align-items:center; gap:0.75rem; overflow-x:auto; padding-bottom:0.5rem;">
                 ${item.seasons.map((s, idx) => `
                   <button type="button" class="server-btn season-tab ${idx === currentSeasonIndex ? 'active' : ''}" data-season-idx="${idx}">
                     Season ${s.season}
@@ -105,9 +126,11 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
   const closeBtn = document.getElementById('closePlayerModalBtn');
   const iframe = document.getElementById('videoIframe');
   const watchlistBtn = document.getElementById('modalWatchlistBtn');
+  const playTrailerBtn = document.getElementById('playTrailerBtn');
 
   function closeModal() {
     backdrop.classList.remove('active');
+    document.body.style.overflow = '';
     setTimeout(() => {
       containerEl.innerHTML = '';
     }, 300);
@@ -117,6 +140,59 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
   backdrop.addEventListener('click', (e) => {
     if (e.target === backdrop) closeModal();
   });
+
+  // Load official YouTube Trailer from TMDB dynamically
+  if (getApiKey()) {
+    fetchMovieTrailer(item.id, item.type).then(trailerKey => {
+      if (trailerKey) {
+        item.trailerKey = trailerKey;
+        const trailerUrl = `https://www.youtube.com/embed/${trailerKey}?autoplay=1`;
+        
+        // Add Trailer server option if not already present
+        if (!item.servers.some(s => s.name.includes('Trailer'))) {
+          item.servers.push({ name: '🎬 Official Trailer', url: trailerUrl });
+          
+          // Re-render server buttons row
+          const serversRow = document.getElementById('serversRow');
+          if (serversRow) {
+            serversRow.innerHTML = `
+              <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">SELECT SERVER:</span>
+              ${item.servers.map((srv, idx) => `
+                <button type="button" class="server-btn ${idx === currentServerIndex ? 'active' : ''}" data-index="${idx}">
+                  ${srv.name}
+                </button>
+              `).join('')}
+            `;
+
+            // Re-bind server buttons
+            serversRow.querySelectorAll('.server-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-index'), 10);
+                currentServerIndex = idx;
+                serversRow.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (item.servers[idx]) iframe.src = item.servers[idx].url;
+              });
+            });
+          }
+        }
+
+        playTrailerBtn?.addEventListener('click', () => {
+          iframe.src = trailerUrl;
+          const trailerIdx = item.servers.findIndex(s => s.name.includes('Trailer'));
+          if (trailerIdx !== -1) {
+            currentServerIndex = trailerIdx;
+            const serversRow = document.getElementById('serversRow');
+            if (serversRow) {
+              serversRow.querySelectorAll('.server-btn').forEach((b, i) => {
+                b.classList.toggle('active', i === trailerIdx);
+              });
+            }
+          }
+        });
+      }
+    });
+  }
 
   // Server button listeners
   containerEl.querySelectorAll('.server-btn:not(.season-tab)').forEach(btn => {
@@ -151,7 +227,6 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
           </button>
         `).join('');
 
-        // Bind episode buttons
         episodesGrid.querySelectorAll('.episode-btn').forEach(epBtn => {
           epBtn.addEventListener('click', () => {
             episodesGrid.querySelectorAll('.episode-btn').forEach(b => b.classList.remove('active'));

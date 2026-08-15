@@ -1,0 +1,11 @@
+R_DEF: Internal format may change without notice
+local
+color black_dark
+color neon_cyan
+color neon_purple
+id customViewContainer
+id swipeRefresh
+id webView
+layout activity_main
+string app_name
+style Theme.Neonflix
