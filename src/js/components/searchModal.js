@@ -53,15 +53,41 @@ export function renderSearchModal(containerEl, onItemClick) {
 
   let activeTypeFilter = 'all';
 
+  try {
+    history.pushState({ modalOpen: 'search' }, '');
+  } catch(e) {}
+
+  let isClosed = false;
+
   function closeModal() {
-    backdrop.classList.remove('active');
+    if (isClosed) return;
+    isClosed = true;
+    window.removeEventListener('popstate', onPopState);
+
+    if (backdrop) backdrop.classList.remove('active');
     setTimeout(() => {
       containerEl.innerHTML = '';
     }, 300);
+
+    if (history.state && history.state.modalOpen === 'search') {
+      history.back();
+    }
   }
 
-  closeBtn.addEventListener('click', closeModal);
-  backdrop.addEventListener('click', (e) => {
+  function onPopState() {
+    if (!isClosed) {
+      isClosed = true;
+      if (backdrop) backdrop.classList.remove('active');
+      setTimeout(() => {
+        containerEl.innerHTML = '';
+      }, 300);
+    }
+  }
+
+  window.addEventListener('popstate', onPopState);
+
+  closeBtn?.addEventListener('click', closeModal);
+  backdrop?.addEventListener('click', (e) => {
     if (e.target === backdrop) closeModal();
   });
 

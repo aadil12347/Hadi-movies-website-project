@@ -1311,11 +1311,14 @@ input {
 
 .episodes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   gap: 0.65rem;
   margin-top: 1rem;
-  max-height: 220px;
-  overflow-y: auto;
+  max-height: 320px;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: contain !important;
 }
 
 .episode-btn {

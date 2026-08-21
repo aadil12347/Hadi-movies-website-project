@@ -179,17 +179,108 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
   const watchlistBtn = document.getElementById('modalWatchlistBtn');
   const playTrailerBtn = document.getElementById('playTrailerBtn');
 
+  // Push state to browser history so mobile back gesture or back button closes the modal
+  try {
+    history.pushState({ modalOpen: 'player' }, '');
+  } catch(e) {}
+
+  let isClosed = false;
+
   function closeModal() {
-    backdrop.classList.remove('active');
+    if (isClosed) return;
+    isClosed = true;
+    window.removeEventListener('popstate', onPopState);
+
+    if (backdrop) backdrop.classList.remove('active');
     document.body.style.overflow = '';
     setTimeout(() => {
       containerEl.innerHTML = '';
     }, 300);
+
+    if (history.state && history.state.modalOpen === 'player') {
+      history.back();
+    }
   }
 
-  closeBtn.addEventListener('click', closeModal);
-  backdrop.addEventListener('click', (e) => {
+  function onPopState() {
+    if (!isClosed) {
+      isClosed = true;
+      if (backdrop) backdrop.classList.remove('active');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        containerEl.innerHTML = '';
+      }, 300);
+    }
+  }
+
+  window.addEventListener('popstate', onPopState);
+
+  closeBtn?.addEventListener('click', closeModal);
+  backdrop?.addEventListener('click', (e) => {
     if (e.target === backdrop) closeModal();
+  });
+
+  // Mobile Touch Swipe Gesture (Only from left edge or top player, never inside scrollable episodes)
+  const modalBox = containerEl.querySelector('.modal-content-box');
+  let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let currentY = 0;
+  let isSwiping = false;
+
+  modalBox?.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+
+    // Do NOT trigger modal swipe-dismiss if touch is inside episodes grid or scrollable containers
+    if (e.target.closest('#episodesGrid') || e.target.closest('.episodes-section')) {
+      isSwiping = false;
+      return;
+    }
+
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+
+    // Only allow swipe dismiss if touch starts near left edge (< 50px) or on top player header
+    const isEdgeSwipe = startX < 50;
+    const isHeaderSwipe = startY < 120 || !!e.target.closest('.player-container');
+
+    if (isEdgeSwipe || isHeaderSwipe) {
+      isSwiping = true;
+      if (modalBox) modalBox.style.transition = 'none';
+    } else {
+      isSwiping = false;
+    }
+  }, { passive: true });
+
+  modalBox?.addEventListener('touchmove', (e) => {
+    if (!isSwiping || e.touches.length !== 1) return;
+    currentX = e.touches[0].clientX - startX;
+    currentY = e.touches[0].clientY - startY;
+
+    if (currentX > 0 && Math.abs(currentX) > Math.abs(currentY) * 1.2) {
+      if (modalBox) modalBox.style.transform = `translateX(${currentX}px)`;
+    } else if (currentY > 0 && Math.abs(currentY) > Math.abs(currentX) * 1.2 && startY < 120) {
+      if (modalBox) modalBox.style.transform = `translateY(${currentY}px)`;
+    }
+  }, { passive: true });
+
+  modalBox?.addEventListener('touchend', () => {
+    if (!isSwiping) return;
+    isSwiping = false;
+    if (modalBox) modalBox.style.transition = 'transform 0.3s ease';
+
+    if (currentX > 90 || (currentY > 110 && startY < 120)) {
+      if (modalBox) modalBox.style.transform = currentX > 90 ? 'translateX(100%)' : 'translateY(100%)';
+      setTimeout(() => {
+        closeModal();
+      }, 250);
+    } else {
+      if (modalBox) modalBox.style.transform = '';
+    }
+    startX = 0;
+    startY = 0;
+    currentX = 0;
+    currentY = 0;
   });
 
   // Helper to change iframe source and show loading spinner
