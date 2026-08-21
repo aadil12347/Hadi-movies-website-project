@@ -2051,6 +2051,42 @@ input:checked + .toggle-slider:before {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5) !important;
   }
 
+  .hero-title-logo {
+    max-width: 175px !important;
+    max-height: 55px !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  .hero-title {
+    font-size: 1.45rem !important;
+    line-height: 1.15 !important;
+    margin-bottom: 0.4rem !important;
+  }
+
+  /* Compact Section Titles & See All Buttons on Mobile */
+  .section-header {
+    margin-bottom: 0.85rem !important;
+  }
+
+  .section-title {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    gap: 0.45rem !important;
+  }
+
+  .section-title .title-accent {
+    width: 4px !important;
+    height: 18px !important;
+  }
+
+  .see-all-btn {
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.65rem !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    gap: 0.2rem !important;
+  }
+
   .card-watchlist-btn {
     top: 6px !important;
     right: 6px !important;
