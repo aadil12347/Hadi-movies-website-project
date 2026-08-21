@@ -36,11 +36,9 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
   // Lock background scroll when modal is open
   document.body.style.overflow = 'hidden';
 
-  if (!item.servers) {
-    item.servers = [
-      { id: "peachify", name: "🍑 Server 1 (Peachify)", url: "" }
-    ];
-  }
+  item.servers = [
+    { id: "peachify", name: "🍑 Server 1 (Peachify)", url: "" }
+  ];
 
   const isSeriesOrAnime = (item.type === 'tv' || item.type === 'anime') && item.seasons && item.seasons.length > 0;
 

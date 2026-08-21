@@ -11,7 +11,7 @@ export const MEDIA_TYPES = {
 
 export const FEATURED_DATASET = [
   {
-    id: 101,
+    id: 693134,
     title: "Dune: Part Two",
     original_title: "Dune: Part Two",
     type: "movie",
@@ -24,15 +24,10 @@ export const FEATURED_DATASET = [
     genres: ["Sci-Fi", "Adventure", "Action"],
     overview: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe.",
     trailerKey: "Way9Dexny3w",
-    cast: ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson", "Javier Bardem"],
-    servers: [
-      { name: "Server 1 (Fast)", url: "https://www.youtube.com/embed/Way9Dexny3w?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/movie/693134" },
-      { name: "Server 3 (Ultra)", url: "https://autoembed.to/movie/tmdb/693134" }
-    ]
+    cast: ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson", "Javier Bardem"]
   },
   {
-    id: 102,
+    id: 94605,
     title: "Arcane: Season 2",
     original_title: "Arcane",
     type: "tv",
@@ -46,9 +41,9 @@ export const FEATURED_DATASET = [
     overview: "Amid the escalating tensions between the utopian city of Piltover and the oppressed underground city of Zaun, sisters Vi and Jinx find themselves on opposing sides of a war.",
     trailerKey: "fXmAurh012s",
     cast: ["Hailee Steinfeld", "Ella Purnell", "Katie Leung"],
-    servers: [
-      { name: "Server 1 (Fast)", url: "https://www.youtube.com/embed/fXmAurh012s?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/94605" }
+    seasons: [
+      { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+      { season: 2, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9] }
     ]
   }
 ];
@@ -56,7 +51,7 @@ export const FEATURED_DATASET = [
 // Let's create a solid, clean, rich list of movies, TV shows, and anime with working TMDB poster CDN links
 export const MOVIES_LIST = [
   {
-    id: 1,
+    id: 533535,
     title: "Deadpool & Wolverine",
     type: "movie",
     poster: "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
@@ -66,14 +61,10 @@ export const MOVIES_LIST = [
     quality: "4K UHD",
     genres: ["Action", "Comedy", "Sci-Fi"],
     overview: "Wolverine is recovering from his injuries when he crosses paths with the loudmouth Deadpool. They team up to defeat a common enemy.",
-    trailerKey: "73_1biulkYk",
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/73_1biulkYk?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/movie/533535" }
-    ]
+    trailerKey: "73_1biulkYk"
   },
   {
-    id: 2,
+    id: 872585,
     title: "Oppenheimer",
     type: "movie",
     poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
@@ -83,14 +74,10 @@ export const MOVIES_LIST = [
     quality: "4K UHD",
     genres: ["Drama", "History", "Biography"],
     overview: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
-    trailerKey: "uYPbbksJxIg",
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/uYPbbksJxIg?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/movie/872585" }
-    ]
+    trailerKey: "uYPbbksJxIg"
   },
   {
-    id: 3,
+    id: 157336,
     title: "Interstellar",
     type: "movie",
     poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
@@ -100,14 +87,10 @@ export const MOVIES_LIST = [
     quality: "4K UHD",
     genres: ["Sci-Fi", "Adventure", "Drama"],
     overview: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-    trailerKey: "zSWdZVtXT7E",
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/zSWdZVtXT7E?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/movie/157336" }
-    ]
+    trailerKey: "zSWdZVtXT7E"
   },
   {
-    id: 4,
+    id: 569094,
     title: "Spider-Man: Across the Spider-Verse",
     type: "movie",
     poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
@@ -117,14 +100,10 @@ export const MOVIES_LIST = [
     quality: "4K UHD",
     genres: ["Animation", "Action", "Adventure"],
     overview: "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence.",
-    trailerKey: "cqGjhVJWtEg",
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/cqGjhVJWtEg?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/movie/569094" }
-    ]
+    trailerKey: "cqGjhVJWtEg"
   },
   {
-    id: 5,
+    id: 155,
     title: "The Dark Knight",
     type: "movie",
     poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
@@ -134,14 +113,10 @@ export const MOVIES_LIST = [
     quality: "4K UHD",
     genres: ["Action", "Crime", "Drama"],
     overview: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological tests.",
-    trailerKey: "EXeTwQWrcwY",
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/EXeTwQWrcwY?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/movie/155" }
-    ]
+    trailerKey: "EXeTwQWrcwY"
   },
   {
-    id: 6,
+    id: 76600,
     title: "Avatar: The Way of Water",
     type: "movie",
     poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeKjPyRm.jpg",
@@ -151,17 +126,13 @@ export const MOVIES_LIST = [
     quality: "4K UHD",
     genres: ["Sci-Fi", "Action", "Adventure"],
     overview: "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri.",
-    trailerKey: "d9MyW72ELq0",
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/d9MyW72ELq0?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/movie/76600" }
-    ]
+    trailerKey: "d9MyW72ELq0"
   }
 ];
 
 export const TV_SHOWS_LIST = [
   {
-    id: 201,
+    id: 66732,
     title: "Stranger Things",
     type: "tv",
     poster: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
@@ -177,14 +148,10 @@ export const TV_SHOWS_LIST = [
       { season: 2, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
       { season: 3, episodes: [1, 2, 3, 4, 5, 6, 7, 8] },
       { season: 4, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/b9EkMc79ZSU?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/66732" }
     ]
   },
   {
-    id: 202,
+    id: 100088,
     title: "The Last of Us",
     type: "tv",
     poster: "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmrdD1yKVwYBEA9Z8.jpg",
@@ -197,14 +164,10 @@ export const TV_SHOWS_LIST = [
     trailerKey: "uLtkt8BonwM",
     seasons: [
       { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/uLtkt8BonwM?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/100088" }
     ]
   },
   {
-    id: 203,
+    id: 94997,
     title: "House of the Dragon",
     type: "tv",
     poster: "https://image.tmdb.org/t/p/w500/1X4h40fcB4WWUmIBK0auT4zRBAV.jpg",
@@ -218,14 +181,10 @@ export const TV_SHOWS_LIST = [
     seasons: [
       { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
       { season: 2, episodes: [1, 2, 3, 4, 5, 6, 7, 8] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/DotnJ7tTA34?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/94997" }
     ]
   },
   {
-    id: 204,
+    id: 1396,
     title: "Breaking Bad",
     type: "tv",
     poster: "https://image.tmdb.org/t/p/w500/ztWlU2c65cnSqToj9XBjL223jOo.jpg",
@@ -239,17 +198,13 @@ export const TV_SHOWS_LIST = [
     seasons: [
       { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7] },
       { season: 2, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/HhesaQXLuRY?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/1396" }
     ]
   }
 ];
 
 export const ANIME_LIST = [
   {
-    id: 301,
+    id: 214497,
     title: "Solo Leveling",
     type: "anime",
     poster: "https://image.tmdb.org/t/p/w500/geCROc3855a9wc647i565mGvhyB.jpg",
@@ -262,14 +217,10 @@ export const ANIME_LIST = [
     trailerKey: "9A04X7vPq1U",
     seasons: [
       { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/9A04X7vPq1U?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/214497" }
     ]
   },
   {
-    id: 302,
+    id: 1429,
     title: "Attack on Titan",
     type: "anime",
     poster: "https://image.tmdb.org/t/p/w500/hTP1LToHSwVWYImrWjMzSQWqWC.jpg",
@@ -283,14 +234,10 @@ export const ANIME_LIST = [
     seasons: [
       { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] },
       { season: 2, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/MGRm4IzK1SQ?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/1429" }
     ]
   },
   {
-    id: 303,
+    id: 85937,
     title: "Demon Slayer: Kimetsu no Yaiba",
     type: "anime",
     poster: "https://image.tmdb.org/t/p/w500/xUfVStA1chwsNxBQqjo5Jd2bXds.jpg",
@@ -304,14 +251,10 @@ export const ANIME_LIST = [
     seasons: [
       { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26] },
       { season: 2, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/VQGCKyvzIM4?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/85937" }
     ]
   },
   {
-    id: 304,
+    id: 95479,
     title: "Jujutsu Kaisen",
     type: "anime",
     poster: "https://image.tmdb.org/t/p/w500/h14a6p3B5a3a2p16J5x4vG2m4t9.jpg",
@@ -324,10 +267,6 @@ export const ANIME_LIST = [
     trailerKey: "pkZXnC3LwUQ",
     seasons: [
       { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24] }
-    ],
-    servers: [
-      { name: "Server 1 (Trailer)", url: "https://www.youtube.com/embed/pkZXnC3LwUQ?autoplay=1" },
-      { name: "Server 2 (HD)", url: "https://vidsrc.to/embed/tv/95479" }
     ]
   }
 ];
@@ -346,10 +285,15 @@ function saveCachedStorage(key, data) {
   } catch (e) {}
 }
 
-export let cacheMovies = loadCachedStorage('neonflix_movies', null);
-export let cacheTv = loadCachedStorage('neonflix_tv', null);
-export let cacheAnime = loadCachedStorage('neonflix_anime', null);
-export let cacheKorean = loadCachedStorage('neonflix_korean', null);
+// Clear legacy cache if present
+try {
+  ['neonflix_movies', 'neonflix_tv', 'neonflix_anime', 'neonflix_korean'].forEach(k => localStorage.removeItem(k));
+} catch(e) {}
+
+export let cacheMovies = loadCachedStorage('neonflix_movies_v2', null);
+export let cacheTv = loadCachedStorage('neonflix_tv_v2', null);
+export let cacheAnime = loadCachedStorage('neonflix_anime_v2', null);
+export let cacheKorean = loadCachedStorage('neonflix_korean_v2', null);
 
 export function getMoviesList() {
   return cacheMovies || MOVIES_LIST;
@@ -474,15 +418,9 @@ function mapTmdbItem(item, mediaType) {
     ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
     : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1025&auto=format&fit=crop';
 
-  const servers = isMovie 
-    ? [
-        { name: "Server 1 (Fast)", url: `https://vidsrc.to/embed/movie/${tmdbId}` },
-        { name: "Server 2 (Auto)", url: `https://autoembed.to/movie/tmdb/${tmdbId}` }
-      ]
-    : [
-        { name: "Server 1 (Fast)", url: `https://vidsrc.to/embed/tv/${tmdbId}/1/1` },
-        { name: "Server 2 (Auto)", url: `https://autoembed.to/tv/tmdb/${tmdbId}/1/1` }
-      ];
+  const servers = [
+    { id: "peachify", name: "🍑 Server 1 (Peachify)", url: "" }
+  ];
 
   const seasons = !isMovie ? [
     { season: 1, episodes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
@@ -521,13 +459,13 @@ export async function fetchLiveTrendingMovies(page = 1) {
     return MOVIES_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}&page=${page}&language=hi`);
+    const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}&page=${page}&language=en-US`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'movie'));
       if (page === 1) {
         cacheMovies = items;
-        saveCachedStorage('neonflix_movies', items);
+        saveCachedStorage('neonflix_movies_v2', items);
       } else {
         cacheMovies = [...(cacheMovies || []), ...items];
       }
@@ -546,13 +484,13 @@ export async function fetchLivePopularTv(page = 1) {
     return TV_SHOWS_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&page=${page}&language=hi`);
+    const res = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&page=${page}&language=en-US`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'tv'));
       if (page === 1) {
         cacheTv = items;
-        saveCachedStorage('neonflix_tv', items);
+        saveCachedStorage('neonflix_tv_v2', items);
       } else {
         cacheTv = [...(cacheTv || []), ...items];
       }
@@ -571,13 +509,13 @@ export async function fetchLiveAnime(page = 1) {
     return ANIME_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}&language=hi`);
+    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}&language=en-US`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'tv'));
       if (page === 1) {
         cacheAnime = items;
-        saveCachedStorage('neonflix_anime', items);
+        saveCachedStorage('neonflix_anime_v2', items);
       } else {
         cacheAnime = [...(cacheAnime || []), ...items];
       }
@@ -596,13 +534,13 @@ export async function fetchLiveKoreanMedia(page = 1) {
     return [];
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}&language=hi`);
+    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}&language=en-US`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'tv'));
       if (page === 1) {
         cacheKorean = items;
-        saveCachedStorage('neonflix_korean', items);
+        saveCachedStorage('neonflix_korean_v2', items);
       } else {
         cacheKorean = [...(cacheKorean || []), ...items];
       }
@@ -619,7 +557,7 @@ export async function fetchLiveSearch(query) {
   const apiKey = getApiKey();
   if (!apiKey) return searchMedia(query);
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=hi`);
+    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=en-US`);
     const data = await res.json();
     if (data && data.results) {
       return data.results
@@ -657,24 +595,24 @@ export async function fetchLiveGenreMedia(type, genre, page = 1) {
 
     if (genreId === 'ko' || genre.toLowerCase() === 'korean') {
       mediaType = 'tv';
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}&language=hi`;
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}&language=en-US`;
     } else if (type === 'movie') {
       mediaType = 'movie';
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi`;
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=en-US`;
       if (genreId) url += `&with_genres=${genreId}`;
     } else if (type === 'tv') {
       mediaType = 'tv';
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi`;
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=en-US`;
       if (genreId) url += `&with_genres=${genreId}`;
     } else if (type === 'anime') {
       mediaType = 'tv';
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}&language=hi`;
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}&language=en-US`;
     } else {
       // For type === 'all' or 'home'
       const isNumGenre = typeof genreId === 'number';
       const [moviesRes, tvRes] = await Promise.all([
-        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json())
+        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=en-US${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=en-US${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json())
       ]);
 
       const movieItems = (moviesRes.results || []).map(item => mapTmdbItem(item, 'movie'));
@@ -725,7 +663,7 @@ export async function fetchTvDetails(tmdbId) {
   const apiKey = getApiKey();
   if (!apiKey || !tmdbId) return null;
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${apiKey}&language=hi`);
+    const res = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${apiKey}&language=en-US`);
     const data = await res.json();
     if (data && data.seasons) {
       const seasons = data.seasons
