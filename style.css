@@ -772,8 +772,8 @@ input {
 .media-carousel::-webkit-scrollbar { display: none; }
 
 .media-carousel .poster-card {
-  flex: 0 0 190px;
-  width: 190px;
+  flex: 0 0 220px;
+  width: 220px;
 }
 
 /* Carousel Control Arrows */
@@ -1990,13 +1990,13 @@ input:checked + .toggle-slider:before {
   }
 
   .media-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
-    gap: 0.75rem !important;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)) !important;
+    gap: 0.85rem !important;
   }
 
   .media-carousel .poster-card {
-    flex: 0 0 130px !important;
-    width: 130px !important;
+    flex: 0 0 160px !important;
+    width: 160px !important;
   }
 
   .card-content-info {

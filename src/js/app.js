@@ -197,26 +197,41 @@ function renderMainView() {
     }
   });
 
-  // Render Media Grid Sections
+  // Render Media Horizontal Swipe Carousel Sections
   const filteredItems = filterMedia(currentTab === 'home' ? 'all' : currentTab, activeGenre);
 
-  if (currentTab === 'home' && activeGenre === 'all') {
-    renderMediaCarouselSection(mainContent, '🔥 Trending Movies', getMoviesList().slice(0, 12), 'movie', fetchLiveTrendingMovies, openPlayerForItem, () => {
-      activeSeeAllSection = 'movie';
-      renderMainView();
-    });
-    renderMediaCarouselSection(mainContent, '📺 Popular TV Series', getTvShowsList().slice(0, 12), 'tv', fetchLivePopularTv, openPlayerForItem, () => {
-      activeSeeAllSection = 'tv';
-      renderMainView();
-    });
-    renderMediaCarouselSection(mainContent, '⚡ Latest Anime Releases', getAnimeList().slice(0, 12), 'anime', fetchLiveAnime, openPlayerForItem, () => {
-      activeSeeAllSection = 'anime';
-      renderMainView();
-    });
-    renderMediaCarouselSection(mainContent, 'All Popular Korean Dramas', getKoreanList().slice(0, 12), 'korean', fetchLiveKoreanMedia, openPlayerForItem, () => {
-      activeSeeAllSection = 'korean';
-      renderMainView();
-    });
+  if (activeGenre === 'all' && !activeSeeAllSection) {
+    if (currentTab === 'home') {
+      renderMediaCarouselSection(mainContent, '🔥 Trending Movies', getMoviesList().slice(0, 15), 'movie', fetchLiveTrendingMovies, openPlayerForItem, () => {
+        activeSeeAllSection = 'movie';
+        renderMainView();
+      });
+      renderMediaCarouselSection(mainContent, '📺 Popular TV Series', getTvShowsList().slice(0, 15), 'tv', fetchLivePopularTv, openPlayerForItem, () => {
+        activeSeeAllSection = 'tv';
+        renderMainView();
+      });
+      renderMediaCarouselSection(mainContent, '⚡ Latest Anime Releases', getAnimeList().slice(0, 15), 'anime', fetchLiveAnime, openPlayerForItem, () => {
+        activeSeeAllSection = 'anime';
+        renderMainView();
+      });
+      renderMediaCarouselSection(mainContent, '🍿 Popular Korean Dramas', getKoreanList().slice(0, 15), 'korean', fetchLiveKoreanMedia, openPlayerForItem, () => {
+        activeSeeAllSection = 'korean';
+        renderMainView();
+      });
+    } else if (currentTab === 'movie') {
+      const movies = getMoviesList();
+      renderMediaCarouselSection(mainContent, '🔥 Trending Blockbusters', movies.slice(0, 15), 'movie-trending', fetchLiveTrendingMovies, openPlayerForItem);
+      renderMediaCarouselSection(mainContent, '🎬 Action & Adventure Movies', movies.filter(m => m.genres?.includes('Action') || m.genres?.includes('Adventure')).concat(movies).slice(0, 15), 'movie-action', null, openPlayerForItem);
+      renderMediaCarouselSection(mainContent, '🔮 Sci-Fi & Fantasy Movies', movies.filter(m => m.genres?.includes('Sci-Fi') || m.genres?.includes('Fantasy')).concat(movies.slice(5)).slice(0, 15), 'movie-scifi', null, openPlayerForItem);
+    } else if (currentTab === 'tv') {
+      const tvs = getTvShowsList();
+      renderMediaCarouselSection(mainContent, '📺 Popular TV Series', tvs.slice(0, 15), 'tv-popular', fetchLivePopularTv, openPlayerForItem);
+      renderMediaCarouselSection(mainContent, '⭐ Top Rated TV Dramas', tvs.filter(t => t.rating >= 8).concat(tvs).slice(0, 15), 'tv-toprated', null, openPlayerForItem);
+    } else if (currentTab === 'anime') {
+      const animes = getAnimeList();
+      renderMediaCarouselSection(mainContent, '⚡ Latest Anime Releases', animes.slice(0, 15), 'anime-latest', fetchLiveAnime, openPlayerForItem);
+      renderMediaCarouselSection(mainContent, '🔥 Action & Fantasy Anime', animes.filter(a => a.genres?.includes('Action') || a.genres?.includes('Fantasy')).concat(animes).slice(0, 15), 'anime-action', null, openPlayerForItem);
+    }
   } else {
     const titleMap = {
       home: `Results (${filteredItems.length})`,
@@ -224,7 +239,7 @@ function renderMainView() {
       tv: `TV Series (${filteredItems.length})`,
       anime: `Anime (${filteredItems.length})`
     };
-    renderMediaGridSection(mainContent, titleMap[currentTab], filteredItems, openPlayerForItem);
+    renderMediaGridSection(mainContent, titleMap[currentTab] || 'Category Results', filteredItems, openPlayerForItem);
   }
 }
 
