@@ -2093,5 +2093,93 @@ input:checked + .toggle-slider:before {
     width: 28px !important;
     height: 28px !important;
   }
+
+  /* Mobile Details Player Modal Responsiveness */
+  .modal-backdrop {
+    padding: 0.5rem !important;
+  }
+
+  .modal-content-box {
+    max-height: 94vh !important;
+    border-radius: 16px !important;
+  }
+
+  .modal-close-btn {
+    top: 8px !important;
+    right: 8px !important;
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .player-controls-bar {
+    padding: 1.15rem 1rem !important;
+    gap: 0.85rem !important;
+  }
+
+  .modal-header-info-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .modal-title-block h2 {
+    font-size: 1.3rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  .player-controls-meta {
+    gap: 0.4rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .modal-action-buttons-row {
+    display: flex !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .modal-action-buttons-row .btn-primary-play,
+  .modal-action-buttons-row .btn-secondary-info {
+    flex: 1 !important;
+    height: 40px !important;
+    padding: 0 0.75rem !important;
+    font-size: 0.82rem !important;
+    justify-content: center !important;
+  }
+
+  .server-selector-row {
+    padding: 0.65rem 0.75rem !important;
+    gap: 0.45rem !important;
+    margin: 0.4rem 0 !important;
+  }
+
+  .server-btn {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .player-overview-text {
+    font-size: 0.84rem !important;
+    line-height: 1.55 !important;
+    margin-top: 0.5rem !important;
+    padding-top: 0.65rem !important;
+  }
+
+  .episodes-section {
+    padding: 0.85rem 1rem 1.35rem 1rem !important;
+  }
+
+  .episodes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)) !important;
+    gap: 0.45rem !important;
+  }
+
+  .episode-btn {
+    padding: 0.55rem 0.35rem !important;
+    font-size: 0.78rem !important;
+  }
 }
 

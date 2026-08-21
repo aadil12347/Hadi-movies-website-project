@@ -95,19 +95,19 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
 
           <!-- Video Controls & Server Selector -->
           <div class="player-controls-bar">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
-              <div style="flex:1; min-width:240px;">
-                <h2 style="font-size:1.5rem; font-weight:800; color:#fff; line-height:1.3; margin:0 0 0.4rem 0;">${item.title}</h2>
-                <div class="player-controls-meta" style="display:flex; align-items:center; gap:0.75rem; font-size:0.88rem; color:var(--text-muted); flex-wrap:wrap;">
+            <div class="modal-header-info-row">
+              <div class="modal-title-block">
+                <h2>${item.title}</h2>
+                <div class="player-controls-meta">
                   <span class="badge-tag badge-quality">${item.year}</span>
                   <span class="badge-tag badge-rating">★ IMDb ${item.rating}</span>
                   <span style="color:var(--text-dim);">${item.genres ? item.genres.join(' • ') : ''}</span>
                 </div>
               </div>
 
-              <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div class="modal-action-buttons-row">
                 <!-- Watch Trailer Button -->
-                <button type="button" class="btn-primary-play" id="playTrailerBtn" style="height:40px; padding:0 1.15rem; font-size:0.85rem;">
+                <button type="button" class="btn-primary-play" id="playTrailerBtn">
                   <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="16" width="16">
                     <path d="M8 5v14l11-7z"></path>
                   </svg>
@@ -115,7 +115,7 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
                 </button>
 
                 <!-- Add to Watchlist Action -->
-                <button type="button" class="btn-secondary-info" id="modalWatchlistBtn" style="height:40px; padding:0 1.15rem; font-size:0.85rem;">
+                <button type="button" class="btn-secondary-info" id="modalWatchlistBtn">
                   <svg stroke="currentColor" fill="${isSavedInWatchlist ? '#00f2fe' : 'none'}" stroke-width="2" viewBox="0 0 24 24" height="16" width="16">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                   </svg>
