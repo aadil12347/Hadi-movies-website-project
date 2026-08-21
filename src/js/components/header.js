@@ -12,50 +12,73 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
       <div class="logo-container">
         <a href="#" class="neonflix-logo" id="logoBtn">
           <div class="logo-icon neon-glow-box">
-            <span>N</span>
+            <span>M</span>
             <div class="logo-pulse-ring"></div>
           </div>
-          <span class="neon-text-logo">NEON<span class="neon-text-accent">FLIX</span></span>
+          <span class="neon-text-logo">MOVIE<span class="neon-text-accent"> HUB</span></span>
         </a>
       </div>
 
-      <!-- Center: Instant Live Search Input Bar & Floating Dropdown -->
-      <div class="header-search-bar" id="headerSearchContainer">
-        <div class="header-search-input-wrapper">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18" style="color:var(--color-neon-red); flex-shrink:0;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
-          </svg>
-          <input type="text" class="header-search-input" id="globalSearchInput" placeholder="Search movies, TV shows, anime..." autocomplete="off" />
-          <button type="button" class="search-clear-btn" id="searchClearBtn" style="display:none;" aria-label="Clear search">&times;</button>
-        </div>
-
-        <!-- Floating Live Search Results Dropdown -->
-        <div class="search-dropdown-menu" id="searchDropdownMenu">
-          <div class="search-dropdown-scroll" id="searchDropdownResults"></div>
-        </div>
-      </div>
-
-      <!-- Right: Search, Watchlist, Settings & Profile -->
+      <!-- Right: Expanding Search Glass Icon & Profile Dropdown -->
       <div class="header-right-actions">
-        <button type="button" class="icon-circle-btn" id="headerSearchToggleBtn" title="Search" aria-label="Search">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
-          </svg>
-        </button>
-        <button type="button" class="icon-circle-btn" id="headerWatchlistBtn" title="My Watchlist" aria-label="Watchlist">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-          </svg>
-        </button>
-        <button type="button" class="icon-circle-btn" id="headerSettingsBtn" title="Settings" aria-label="Settings">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-        </button>
-        <button type="button" class="icon-circle-btn profile-btn" id="profileBtn" aria-label="User Profile">
-          <div class="profile-avatar">H</div>
-        </button>
+        <!-- Expanding Search Box (Pill expands to the LEFT from glass icon) -->
+        <div class="searchBox" id="headerSearchContainer">
+          <input type="text" class="searchInput" id="globalSearchInput" placeholder="Search movies, TV shows, anime..." autocomplete="off" spellcheck="false" />
+          <button type="button" class="searchButton" id="headerSearchToggleBtn" aria-label="Search" title="Search">
+            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+            </svg>
+          </button>
+
+          <!-- Floating Live Search Results Dropdown -->
+          <div class="search-dropdown-menu" id="searchDropdownMenu">
+            <div class="search-dropdown-scroll" id="searchDropdownResults"></div>
+          </div>
+        </div>
+
+        <!-- Profile Dropdown Wrapper -->
+        <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
+          <button type="button" class="icon-circle-btn profile-btn" id="profileBtn" aria-label="User Profile" title="Profile & Menu">
+            <div class="profile-avatar">H</div>
+          </button>
+
+          <!-- Profile Dropdown Menu -->
+          <div class="profile-dropdown-menu" id="profileDropdownMenu">
+            <div class="profile-menu-header">
+              <div class="profile-avatar-large">H</div>
+              <div class="profile-user-info">
+                <span class="profile-user-name">Hadi Awan</span>
+              </div>
+            </div>
+            <div class="profile-menu-divider"></div>
+            <div class="profile-menu-items">
+              <button type="button" class="profile-menu-item" id="profileWatchlistBtn">
+                <div class="menu-item-icon">
+                  <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                  </svg>
+                </div>
+                <div class="menu-item-content">
+                  <span class="menu-item-title">My Watchlist</span>
+                  <span class="menu-item-sub">Saved movies & series</span>
+                </div>
+              </button>
+
+              <button type="button" class="profile-menu-item" id="profileSettingsBtn">
+                <div class="menu-item-icon">
+                  <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </div>
+                <div class="menu-item-content">
+                  <span class="menu-item-title">Settings</span>
+                  <span class="menu-item-sub">Performance & preferences</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -158,15 +181,27 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
     });
   }
 
+  const siteHeader = document.getElementById('siteHeader');
+
+  function expandSearch() {
+    siteHeader?.classList.add('search-active');
+    searchContainer?.classList.add('active');
+  }
+
+  function collapseSearch() {
+    if (!searchInput?.value.trim() && document.activeElement !== searchInput) {
+      siteHeader?.classList.remove('search-active');
+      searchContainer?.classList.remove('active');
+    }
+  }
+
   async function handleSearchInput() {
     const query = searchInput.value.trim();
     if (!query) {
-      searchClearBtn.style.display = 'none';
-      closeDropdown();
+      const topItems = getAllMedia().slice(0, 5);
+      renderDropdownItems(topItems);
       return;
     }
-
-    searchClearBtn.style.display = 'block';
 
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
@@ -177,31 +212,57 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
 
   searchInput?.addEventListener('input', handleSearchInput);
   searchInput?.addEventListener('focus', () => {
-    if (searchInput.value.trim().length > 0) {
+    expandSearch();
+    handleSearchInput();
+  });
+
+  searchInput?.addEventListener('blur', () => {
+    setTimeout(() => {
+      collapseSearch();
+    }, 220);
+  });
+
+  searchContainer?.addEventListener('mouseenter', () => {
+    expandSearch();
+  });
+
+  searchContainer?.addEventListener('mouseleave', () => {
+    setTimeout(() => {
+      collapseSearch();
+    }, 220);
+  });
+
+  const headerSearchToggleBtn = document.getElementById('headerSearchToggleBtn');
+  headerSearchToggleBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    expandSearch();
+    setTimeout(() => searchInput?.focus(), 50);
+    if (searchInput && searchInput.value.trim().length > 0) {
       handleSearchInput();
     }
   });
 
-  searchClearBtn?.addEventListener('click', () => {
-    searchInput.value = '';
-    searchClearBtn.style.display = 'none';
-    closeDropdown();
-    searchInput.focus();
-  });
+  const profileDropdownMenu = document.getElementById('profileDropdownMenu');
+  const profileDropdownWrapper = document.getElementById('profileDropdownWrapper');
+  const profileWatchlistBtn = document.getElementById('profileWatchlistBtn');
+  const profileSettingsBtn = document.getElementById('profileSettingsBtn');
 
-  // Header Search Toggle Button handler (For Mobile & Compact Header view)
-  const headerSearchToggleBtn = document.getElementById('headerSearchToggleBtn');
-  headerSearchToggleBtn?.addEventListener('click', () => {
-    searchContainer?.classList.toggle('mobile-visible');
-    if (searchContainer?.classList.contains('mobile-visible')) {
-      setTimeout(() => searchInput?.focus(), 150);
-    }
-  });
+  function toggleProfileMenu() {
+    profileDropdownMenu?.classList.toggle('active');
+  }
 
-  // Click outside to close dropdown
+  function closeProfileMenu() {
+    profileDropdownMenu?.classList.remove('active');
+  }
+
+  // Click outside to close dropdowns
   document.addEventListener('click', (e) => {
     if (searchContainer && !searchContainer.contains(e.target)) {
       closeDropdown();
+      collapseSearch();
+    }
+    if (profileDropdownWrapper && !profileDropdownWrapper.contains(e.target)) {
+      closeProfileMenu();
     }
   });
 
@@ -209,6 +270,7 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeDropdown();
+      closeProfileMenu();
     }
   });
 
@@ -219,21 +281,21 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
     onNavSelect('home');
   });
 
-  headerWatchlistBtn?.addEventListener('click', () => {
+  const profileBtn = document.getElementById('profileBtn');
+
+  profileBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleProfileMenu();
+  });
+
+  profileWatchlistBtn?.addEventListener('click', () => {
+    closeProfileMenu();
     setActiveTab('watchlist');
     onNavSelect('watchlist');
   });
 
-  const headerSettingsBtn = document.getElementById('headerSettingsBtn');
-  const profileBtn = document.getElementById('profileBtn');
-
-  headerSettingsBtn?.addEventListener('click', () => {
-    if (typeof window.openSettingsModal === 'function') {
-      window.openSettingsModal();
-    }
-  });
-
-  profileBtn?.addEventListener('click', () => {
+  profileSettingsBtn?.addEventListener('click', () => {
+    closeProfileMenu();
     if (typeof window.openSettingsModal === 'function') {
       window.openSettingsModal();
     }

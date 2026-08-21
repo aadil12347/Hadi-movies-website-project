@@ -20,7 +20,7 @@ export function renderHeroSlider(containerEl, items, onPlayClick, onDetailsClick
     const badgeLabel = isMovie ? 'Movie' : (isAnime ? 'Anime' : 'TV Series');
     const genreText = item.genres ? item.genres.slice(0, 3).join(' • ') : 'Action • Thriller';
 
-    const titleMarkup = item.logoUrl 
+    const titleMarkup = item.logoUrl
       ? `<img class="hero-title-logo" id="heroTitleElement" src="${item.logoUrl}" alt="${item.title}" />`
       : `<h1 class="hero-title" id="heroTitleElement">${item.title}</h1>`;
 
@@ -58,13 +58,6 @@ export function renderHeroSlider(containerEl, items, onPlayClick, onDetailsClick
             </svg>
           </div>
           <span>Stream Now</span>
-        </button>
-        
-        <button type="button" class="btn-secondary-info" id="heroTrailerBtn">
-          <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="18" width="18" style="color:#00f2fe;">
-            <path d="M18 3v2h-2V3H8v2H6V3H4v18h2v-2h2v2h8v-2h2v2h2V3h-2zM8 17H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V7h2v2zm10 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"></path>
-          </svg>
-          <span>Watch Trailer</span>
         </button>
       </div>
     `;
@@ -112,14 +105,6 @@ export function renderHeroSlider(containerEl, items, onPlayClick, onDetailsClick
   function bindCardEvents(item) {
     document.getElementById('heroPlayBtn')?.addEventListener('click', () => {
       onPlayClick({ ...item, isTrailerMode: false });
-    });
-
-    document.getElementById('heroTrailerBtn')?.addEventListener('click', async () => {
-      let key = item.trailerKey;
-      if (!key && item.id) {
-        key = await fetchMovieTrailer(item.id, item.type);
-      }
-      onDetailsClick({ ...item, isTrailerMode: true, trailerKey: key || 'Way9Dexny3w' });
     });
   }
 
