@@ -83,15 +83,18 @@ export function renderGenreFilterBar(containerEl, genres, activeGenre, onSelectG
 export function renderMediaGridSection(containerEl, title, items, onItemClick) {
   if (!items || items.length === 0) return;
 
-  const sectionHTML = `
-    <section class="media-section">
+  const titleHeader = (title && title.trim() !== '') ? `
       <div class="section-header">
         <h2 class="section-title">
           <span class="title-accent"></span>
           <span>${title}</span>
         </h2>
       </div>
+  ` : '';
 
+  const sectionHTML = `
+    <section class="media-section">
+      ${titleHeader}
       <div class="media-grid">
         ${items.map(item => renderMediaCard(item)).join('')}
       </div>

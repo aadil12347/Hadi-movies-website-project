@@ -103,7 +103,7 @@ function renderMainView() {
   if (activeSeeAllSection) {
     const sectionInfoMap = {
       movie: { title: '🔥 All Trending Movies', loadFn: fetchLiveTrendingMovies, getItems: getMoviesList, type: 'movie' },
-      tv: { title: '📺 All Popular TV Series', loadFn: fetchLivePopularTv, getItems: getTvShowsList, type: 'tv' },
+      tv: { title: '📺 All Popular Web Seasons', loadFn: fetchLivePopularTv, getItems: getTvShowsList, type: 'tv' },
       anime: { title: '⚡ All Latest Anime Releases', loadFn: fetchLiveAnime, getItems: getAnimeList, type: 'anime' },
       korean: { title: 'All Popular Korean Dramas', loadFn: fetchLiveKoreanMedia, getItems: getKoreanList, type: 'korean' }
     };
@@ -112,24 +112,14 @@ function renderMainView() {
     const initialItems = sec ? sec.getItems() : [];
 
     const headerWrapper = document.createElement('div');
-    headerWrapper.style = "max-width:1400px; margin: 1.5rem auto 0.5rem auto; padding: 0 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;";
+    headerWrapper.style = "max-width:1400px; margin: 1.25rem auto 0.5rem auto; padding: 0 1.25rem;";
     headerWrapper.innerHTML = `
-      <div style="display:flex; align-items:center; gap: 1rem;">
-        <button type="button" id="backToHomeBtn" class="btn-secondary-info" style="height: 40px; padding: 0 1rem; font-size: 0.85rem;">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-          </svg>
-          <span>Back to Home</span>
-        </button>
-        <h1 style="font-size: 1.6rem; font-weight: 800;">${sec ? sec.title : 'All Results'}</h1>
-      </div>
+      <h1 class="section-title" style="font-size: clamp(1.15rem, 4.2vw, 1.5rem); font-weight: 800; margin: 0;">
+        <span class="title-accent"></span>
+        <span>${sec ? sec.title : 'All Results'}</span>
+      </h1>
     `;
     mainContent.appendChild(headerWrapper);
-
-    headerWrapper.querySelector('#backToHomeBtn')?.addEventListener('click', () => {
-      activeSeeAllSection = null;
-      renderMainView();
-    });
 
     renderMediaGridSection(mainContent, '', initialItems, openPlayerForItem);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -206,7 +196,7 @@ function renderMainView() {
         activeSeeAllSection = 'movie';
         renderMainView();
       });
-      renderMediaCarouselSection(mainContent, '📺 Popular TV Series', getTvShowsList().slice(0, 15), 'tv', fetchLivePopularTv, openPlayerForItem, () => {
+      renderMediaCarouselSection(mainContent, '📺 Popular Web Seasons', getTvShowsList().slice(0, 15), 'tv', fetchLivePopularTv, openPlayerForItem, () => {
         activeSeeAllSection = 'tv';
         renderMainView();
       });
@@ -224,9 +214,9 @@ function renderMainView() {
       renderMediaCarouselSection(mainContent, '🎬 Action & Adventure Movies', movies.filter(m => m.genres?.includes('Action') || m.genres?.includes('Adventure')).concat(movies).slice(0, 15), 'movie-action', null, openPlayerForItem);
       renderMediaCarouselSection(mainContent, '🔮 Sci-Fi & Fantasy Movies', movies.filter(m => m.genres?.includes('Sci-Fi') || m.genres?.includes('Fantasy')).concat(movies.slice(5)).slice(0, 15), 'movie-scifi', null, openPlayerForItem);
     } else if (currentTab === 'tv') {
-      const tvs = getTvShowsList();
-      renderMediaCarouselSection(mainContent, '📺 Popular TV Series', tvs.slice(0, 15), 'tv-popular', fetchLivePopularTv, openPlayerForItem);
-      renderMediaCarouselSection(mainContent, '⭐ Top Rated TV Dramas', tvs.filter(t => t.rating >= 8).concat(tvs).slice(0, 15), 'tv-toprated', null, openPlayerForItem);
+      const tvs = getTvShowsList().slice();
+      tvs.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      renderMediaGridSection(mainContent, '', tvs, openPlayerForItem);
     } else if (currentTab === 'anime') {
       const animes = getAnimeList();
       renderMediaCarouselSection(mainContent, '⚡ Latest Anime Releases', animes.slice(0, 15), 'anime-latest', fetchLiveAnime, openPlayerForItem);
@@ -236,10 +226,11 @@ function renderMainView() {
     const titleMap = {
       home: `Results (${filteredItems.length})`,
       movie: `Movies (${filteredItems.length})`,
-      tv: `TV Series (${filteredItems.length})`,
+      tv: '',
       anime: `Anime (${filteredItems.length})`
     };
-    renderMediaGridSection(mainContent, titleMap[currentTab] || 'Category Results', filteredItems, openPlayerForItem);
+    const itemsToRender = currentTab === 'tv' ? [...filteredItems].sort((a, b) => (b.rating || 0) - (a.rating || 0)) : filteredItems;
+    renderMediaGridSection(mainContent, titleMap[currentTab] || '', itemsToRender, openPlayerForItem);
   }
 }
 

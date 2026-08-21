@@ -275,20 +275,20 @@ function loadCachedStorage(key, fallback = null) {
   try {
     const saved = localStorage.getItem(key);
     if (saved) return JSON.parse(saved);
-  } catch (e) {}
+  } catch (e) { }
   return fallback;
 }
 
 function saveCachedStorage(key, data) {
   try {
     localStorage.setItem(key, JSON.stringify(data));
-  } catch (e) {}
+  } catch (e) { }
 }
 
 // Clear legacy cache if present
 try {
   ['neonflix_movies', 'neonflix_tv', 'neonflix_anime', 'neonflix_korean'].forEach(k => localStorage.removeItem(k));
-} catch(e) {}
+} catch (e) { }
 
 export let cacheMovies = loadCachedStorage('neonflix_movies_v2', null);
 export let cacheTv = loadCachedStorage('neonflix_tv_v2', null);
@@ -324,7 +324,7 @@ export function getAllMedia() {
 export function searchMedia(query) {
   if (!query || query.trim() === '') return [];
   const q = query.toLowerCase().trim();
-  return getAllMedia().filter(item => 
+  return getAllMedia().filter(item =>
     item.title.toLowerCase().includes(q) ||
     (item.overview && item.overview.toLowerCase().includes(q)) ||
     (item.genres && item.genres.some(g => g.toLowerCase().includes(q)))
@@ -334,11 +334,11 @@ export function searchMedia(query) {
 // Filter Function by Genre & Type
 export function filterMedia(type = 'all', genre = 'all') {
   let list = getAllMedia();
-  
+
   if (type !== 'all') {
     list = list.filter(item => item.type === type);
   }
-  
+
   if (genre !== 'all') {
     const gLower = genre.toLowerCase().trim();
     if (gLower === 'korean' || gLower === 'k-drama') {
@@ -349,7 +349,7 @@ export function filterMedia(type = 'all', genre = 'all') {
       list = list.filter(item => item.genres && item.genres.some(g => g.toLowerCase() === gLower));
     }
   }
-  
+
   // Sort items by rating in descending order so top trending items remain at the top!
   return list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 }
@@ -407,10 +407,10 @@ function mapTmdbItem(item, mediaType) {
     (item.genre_ids && item.genre_ids.includes(16) && item.original_language === 'ja') ||
     (item.genres && item.genres.some(g => g.name === 'Animation') && item.original_language === 'ja')
   );
-  
+
   const finalType = isMovie ? 'movie' : (isAnime ? 'anime' : 'tv');
 
-  const posterUrl = item.poster_path 
+  const posterUrl = item.poster_path
     ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
     : 'https://via.placeholder.com/300x450/15151e/ffffff?text=' + encodeURIComponent(item.title || item.name);
 
@@ -641,14 +641,14 @@ export async function fetchLiveGenreMedia(type, genre, page = 1) {
 export async function fetchMovieTrailer(tmdbId, type = 'movie') {
   const apiKey = getApiKey();
   if (!apiKey || !tmdbId) return null;
-  
+
   const endpointType = (type === 'movie') ? 'movie' : 'tv';
   try {
     const res = await fetch(`https://api.themoviedb.org/3/${endpointType}/${tmdbId}/videos?api_key=${apiKey}`);
     const data = await res.json();
     if (data && data.results && data.results.length > 0) {
-      const trailer = data.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') || 
-                      data.results.find(v => v.site === 'YouTube');
+      const trailer = data.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') ||
+        data.results.find(v => v.site === 'YouTube');
       if (trailer) {
         return trailer.key;
       }
