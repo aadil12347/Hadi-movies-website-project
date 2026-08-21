@@ -42,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
         mSwipeRefresh = findViewById(R.id.swipeRefresh);
         mCustomViewContainer = findViewById(R.id.customViewContainer);
 
+        // Enable Touch Focus for Soft Keyboard Input in Android WebView
+        mWebView.setFocusable(true);
+        mWebView.setFocusableInTouchMode(true);
+        mWebView.requestFocus(View.FOCUS_DOWN);
+
         // Configure WebView Settings for Max Performance & JS Execution
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -79,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
                 if (url.startsWith("https://aadil12347.github.io/") || 
+                    url.contains("vercel.app") ||
                     url.contains("localhost") || 
                     url.contains("192.168.") || 
                     url.contains("streamsrc.cc") || 

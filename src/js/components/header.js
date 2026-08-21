@@ -35,8 +35,13 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
         </div>
       </div>
 
-      <!-- Right: Watchlist Shortcut, Settings & Profile -->
+      <!-- Right: Search, Watchlist, Settings & Profile -->
       <div class="header-right-actions">
+        <button type="button" class="icon-circle-btn" id="headerSearchToggleBtn" title="Search" aria-label="Search">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+          </svg>
+        </button>
         <button type="button" class="icon-circle-btn" id="headerWatchlistBtn" title="My Watchlist" aria-label="Watchlist">
           <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
@@ -54,7 +59,7 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
       </div>
     </header>
 
-    <!-- Mobile Floating Bottom Navigation Bar -->
+    <!-- Mobile Floating Bottom Navigation Bar (4 Essential Clean Tabs) -->
     <div class="mobile-bottom-bar">
       <div class="bottom-nav-container">
         <button type="button" class="nav-tab-btn active" data-tab="home" aria-label="Home">
@@ -75,23 +80,11 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
           </svg>
           <span>TV</span>
         </button>
-        <button type="button" class="nav-tab-btn" data-tab="anime" aria-label="Anime">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-          </svg>
-          <span>Anime</span>
-        </button>
         <button type="button" class="nav-tab-btn" data-tab="watchlist" aria-label="Watchlist">
           <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
           </svg>
           <span>Saved</span>
-        </button>
-        <button type="button" class="nav-tab-btn" id="mobileSearchBtn" aria-label="Search">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
-          </svg>
-          <span>Search</span>
         </button>
       </div>
     </div>
@@ -142,18 +135,26 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
     dropdownResults.innerHTML = html;
     dropdownMenu.classList.add('active');
 
-    // Bind item click
+    // Bind item selection with touch & pointer support for Android WebView & Mobile browsers
     dropdownResults.querySelectorAll('.search-result-item').forEach(el => {
-      el.addEventListener('click', () => {
+      const handleSelect = (e) => {
+        e.preventDefault();
         const id = el.getAttribute('data-id');
         const item = results.find(r => r.id == id) || getAllMedia().find(i => i.id == id);
         if (item) {
           closeDropdown();
-          searchInput.value = '';
-          searchClearBtn.style.display = 'none';
+          if (searchInput) {
+            searchInput.value = '';
+            searchInput.blur();
+          }
+          if (searchClearBtn) searchClearBtn.style.display = 'none';
+          searchContainer?.classList.remove('mobile-visible');
           onItemClick(item);
         }
-      });
+      };
+
+      el.addEventListener('pointerdown', handleSelect);
+      el.addEventListener('click', handleSelect);
     });
   }
 
@@ -188,12 +189,13 @@ export function renderHeader(containerEl, onNavSelect, onItemClick) {
     searchInput.focus();
   });
 
-  // Mobile search button handler
-  mobileSearchBtn?.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      searchInput?.focus();
-    }, 300);
+  // Header Search Toggle Button handler (For Mobile & Compact Header view)
+  const headerSearchToggleBtn = document.getElementById('headerSearchToggleBtn');
+  headerSearchToggleBtn?.addEventListener('click', () => {
+    searchContainer?.classList.toggle('mobile-visible');
+    if (searchContainer?.classList.contains('mobile-visible')) {
+      setTimeout(() => searchInput?.focus(), 150);
+    }
   });
 
   // Click outside to close dropdown
