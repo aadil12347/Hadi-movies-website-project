@@ -9,6 +9,7 @@ import { renderGenreFilterBar, renderMediaGridSection, renderMediaCarouselSectio
 import { renderPlayerModal } from './components/playerModal.js';
 import { renderSearchModal } from './components/searchModal.js';
 import { renderWatchlistView, toggleWatchlist, isInWatchlist } from './components/watchlist.js';
+import { initSettingsModal } from './components/settingsModal.js';
 import {
   FEATURED_DATASET,
   getMoviesList,
@@ -258,6 +259,7 @@ function showToast(msg) {
 }
 
 function initApp() {
+  initSettingsModal();
   const headerApp = document.getElementById('headerApp');
 
   // Render Top & Bottom Navbar
