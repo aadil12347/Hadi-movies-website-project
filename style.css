@@ -1491,98 +1491,98 @@ input {
 /* 1. Header Search Bar & Input Overrides */
 /* 1. Header Right-Aligned Expanding Search Box (Right-to-Left animation) */
 .searchBox {
-    position: relative;
-    background: rgba(47, 54, 64, 0.85);
-    height: 40px;
-    border-radius: 40px;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-sizing: border-box;
-    z-index: 1000;
+  position: relative;
+  background: rgba(47, 54, 64, 0.85);
+  height: 40px;
+  border-radius: 40px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  z-index: 1000;
 }
 
 .searchBox:hover,
 .searchBox:focus-within,
 .searchBox.active {
-    background: #2f3640;
-    border-color: var(--color-neon-red);
-    box-shadow: 0 0 25px rgba(255, 0, 60, 0.45);
+  background: #2f3640;
+  border-color: var(--color-neon-red);
+  box-shadow: 0 0 25px rgba(255, 0, 60, 0.45);
 }
 
 .searchButton {
-    color: white;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #2f3640;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    border: none;
-    cursor: pointer;
-    flex-shrink: 0;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2f3640;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.searchBox:hover > .searchButton,
-.searchBox:focus-within > .searchButton,
-.searchBox.active > .searchButton {
-    background: white;
-    color: #2f3640;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+.searchBox:hover>.searchButton,
+.searchBox:focus-within>.searchButton,
+.searchBox.active>.searchButton {
+  background: white;
+  color: #2f3640;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
 }
 
 .searchInput {
-    border: none;
-    background: none;
-    outline: none;
-    padding: 0;
-    color: white;
-    font-size: 15px;
-    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-    line-height: 36px;
-    width: 0px;
-    opacity: 0;
-    font-family: inherit;
-    caret-color: var(--color-neon-red) !important;
+  border: none;
+  background: none;
+  outline: none;
+  padding: 0;
+  color: white;
+  font-size: 15px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  line-height: 36px;
+  width: 0px;
+  opacity: 0;
+  font-family: inherit;
+  caret-color: var(--color-neon-red) !important;
 }
 
 .searchInput::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-    white-space: nowrap;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
 }
 
 /* PC Expansion (Expands leftwards from glass icon towards logo) */
-.searchBox:hover > .searchInput,
-.searchBox:focus-within > .searchInput,
-.searchBox.active > .searchInput {
-    width: 280px;
-    padding: 0 10px 0 12px;
-    opacity: 1;
+.searchBox:hover>.searchInput,
+.searchBox:focus-within>.searchInput,
+.searchBox.active>.searchInput {
+  width: 280px;
+  padding: 0 10px 0 12px;
+  opacity: 1;
 }
 
 /* Mobile Specific Expansion (Hides title and expands across header) */
 @media screen and (max-width: 768px) {
   .site-header.search-active .searchBox {
-      position: absolute;
-      right: 4.2rem;
-      left: 0.85rem;
-      width: auto;
+    position: absolute;
+    right: 4.2rem;
+    left: 0.85rem;
+    width: auto;
   }
 
-  .site-header.search-active .searchBox > .searchInput,
-  .searchBox:hover > .searchInput,
-  .searchBox:focus-within > .searchInput,
-  .searchBox.active > .searchInput {
-      width: clamp(140px, 50vw, 280px);
-      padding: 0 8px 0 10px;
-      opacity: 1;
+  .site-header.search-active .searchBox>.searchInput,
+  .searchBox:hover>.searchInput,
+  .searchBox:focus-within>.searchInput,
+  .searchBox.active>.searchInput {
+    width: clamp(140px, 50vw, 280px);
+    padding: 0 8px 0 10px;
+    opacity: 1;
   }
 }
 

@@ -415,10 +415,14 @@ function initApp() {
     }
   });
 
-  // Scroll To Top Handler
+  // Scroll To Top Handler (Automatically hides near bottom footer so it never blocks footer text)
   const scrollTopBtn = document.getElementById('scrollTopBtn');
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const isNearBottom = (documentHeight - scrollPosition) < 220;
+
+    if (window.scrollY > 300 && !isNearBottom) {
       scrollTopBtn?.classList.add('visible');
     } else {
       scrollTopBtn?.classList.remove('visible');
@@ -542,7 +546,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
       <div style="display:flex; align-items:center; gap:0.6rem;">
         <span style="font-size:1.3rem;">📱</span>
         <div style="display:flex; flex-direction:column;">
-          <span style="font-weight:800; font-size:0.88rem; color:#fff;">Install Neonflix App</span>
+          <span style="font-weight:800; font-size:0.88rem; color:#fff;">Install Movie Hub App</span>
           <span style="font-size:0.75rem; color:var(--text-muted);">Add to home screen as standalone app</span>
         </div>
       </div>
@@ -557,7 +561,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
       deferredPwaPrompt.prompt();
       deferredPwaPrompt.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
-          showToast('Installing Neonflix App to Home Screen...');
+          showToast('Installing Movie Hub App to Home Screen...');
         }
         deferredPwaPrompt = null;
       });
