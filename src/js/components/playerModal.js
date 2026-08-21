@@ -37,7 +37,7 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
   document.body.style.overflow = 'hidden';
 
   item.servers = [
-    { id: "peachify", name: "🍑 Server 1 (Peachify)", url: "" }
+    { id: "peachify", name: "Server 1 (HD)", url: "" }
   ];
 
   const isSeriesOrAnime = (item.type === 'tv' || item.type === 'anime') && item.seasons && item.seasons.length > 0;
@@ -59,6 +59,9 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
   }
 
   function getActiveEmbedUrl() {
+    if (item.isTrailerMode && item.trailerKey) {
+      return `https://www.youtube.com/embed/${item.trailerKey}?autoplay=1`;
+    }
     if (item.servers && item.servers[currentServerIndex]) {
       return getEmbedUrl(currentServerIndex, currentSeasonIndex + 1, currentEpisodeNumber);
     }
@@ -92,10 +95,10 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
 
           <!-- Video Controls & Server Selector -->
           <div class="player-controls-bar">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-              <div>
-                <h2 style="font-size:1.4rem; font-weight:800; color:#fff; line-height:1.3;">${item.title}</h2>
-                <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.88rem; color:var(--text-muted); margin-top:0.4rem; flex-wrap:wrap;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+              <div style="flex:1; min-width:240px;">
+                <h2 style="font-size:1.5rem; font-weight:800; color:#fff; line-height:1.3; margin:0 0 0.4rem 0;">${item.title}</h2>
+                <div class="player-controls-meta" style="display:flex; align-items:center; gap:0.75rem; font-size:0.88rem; color:var(--text-muted); flex-wrap:wrap;">
                   <span class="badge-tag badge-quality">${item.year}</span>
                   <span class="badge-tag badge-rating">★ IMDb ${item.rating}</span>
                   <span style="color:var(--text-dim);">${item.genres ? item.genres.join(' • ') : ''}</span>
@@ -104,16 +107,16 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
 
               <div style="display:flex; align-items:center; gap:0.75rem;">
                 <!-- Watch Trailer Button -->
-                <button type="button" class="btn-primary-play" id="playTrailerBtn" style="height:42px; padding:0 1.25rem; font-size:0.88rem;">
-                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="18" width="18">
+                <button type="button" class="btn-primary-play" id="playTrailerBtn" style="height:40px; padding:0 1.15rem; font-size:0.85rem;">
+                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="16" width="16">
                     <path d="M8 5v14l11-7z"></path>
                   </svg>
                   <span>Trailer</span>
                 </button>
 
                 <!-- Add to Watchlist Action -->
-                <button type="button" class="btn-secondary-info" id="modalWatchlistBtn" style="height:42px; padding:0 1.25rem; font-size:0.88rem;">
-                  <svg stroke="currentColor" fill="${isSavedInWatchlist ? '#00f2fe' : 'none'}" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
+                <button type="button" class="btn-secondary-info" id="modalWatchlistBtn" style="height:40px; padding:0 1.15rem; font-size:0.85rem;">
+                  <svg stroke="currentColor" fill="${isSavedInWatchlist ? '#00f2fe' : 'none'}" stroke-width="2" viewBox="0 0 24 24" height="16" width="16">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                   </svg>
                   <span>${isSavedInWatchlist ? 'Saved' : '+ Watchlist'}</span>
@@ -134,13 +137,19 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
               `).join('')}
             </div>
 
-            <p style="font-size:0.92rem; color:var(--text-muted); line-height:1.65; margin:0;">${item.overview}</p>
+            <p class="player-overview-text" style="font-size:0.92rem; color:var(--text-muted); line-height:1.65; margin:0.25rem 0 0 0;">${item.overview}</p>
           </div>
 
           <!-- Season & Episode Selector (For TV Series / Anime) -->
           ${isSeriesOrAnime ? `
             <div class="episodes-section">
-              <div style="display:flex; align-items:center; gap:0.75rem; overflow-x:auto; padding-bottom:0.5rem;">
+              <h3 class="episodes-section-title" style="font-size:0.95rem; font-weight:800; color:#fff; margin:0 0 0.85rem 0; display:flex; align-items:center; gap:0.5rem; text-transform:uppercase; letter-spacing:0.04em;">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18" style="color:#94a3b8; flex-shrink:0;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+                <span>Select Episode</span>
+              </h3>
+              <div style="display:flex; align-items:center; gap:0.75rem; overflow-x:auto; padding-bottom:0.75rem; margin-bottom: 0.25rem;">
                 ${item.seasons.map((s, idx) => `
                   <button type="button" class="server-btn season-tab ${idx === currentSeasonIndex ? 'active' : ''}" data-season-idx="${idx}">
                     Season ${s.season}

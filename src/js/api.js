@@ -419,7 +419,7 @@ function mapTmdbItem(item, mediaType) {
     : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1025&auto=format&fit=crop';
 
   const servers = [
-    { id: "peachify", name: "🍑 Server 1 (Peachify)", url: "" }
+    { id: "peachify", name: "Server 1 (HD)", url: "" }
   ];
 
   const seasons = !isMovie ? [
@@ -686,6 +686,25 @@ export async function fetchTvDetails(tmdbId) {
     }
   } catch (e) {
     console.error("Fetch TV details failed", e);
+  }
+  return null;
+}
+
+export async function fetchMovieLogo(tmdbId, type = 'movie') {
+  const apiKey = getApiKey();
+  if (!apiKey || !tmdbId) return null;
+  const endpointType = (type === 'movie') ? 'movie' : 'tv';
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/${endpointType}/${tmdbId}/images?api_key=${apiKey}&include_image_language=en,null`);
+    const data = await res.json();
+    if (data && data.logos && data.logos.length > 0) {
+      const englishLogo = data.logos.find(l => l.iso_639_1 === 'en') || data.logos[0];
+      if (englishLogo && englishLogo.file_path) {
+        return `https://image.tmdb.org/t/p/w500${englishLogo.file_path}`;
+      }
+    }
+  } catch (e) {
+    console.error("Fetch TMDB logo failed", e);
   }
   return null;
 }

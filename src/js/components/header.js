@@ -1,12 +1,14 @@
 // ----------------------------------------------------
 // HEADER & NAVIGATION COMPONENT
-// Top header bar with desktop links & mobile bottom floating nav bar
+// Top header bar with live instant search dropdown & mobile bottom nav bar
 // ----------------------------------------------------
 
-export function renderHeader(containerEl, onNavSelect, onSearchClick) {
+import { fetchLiveSearch, getAllMedia } from '../api.js';
+
+export function renderHeader(containerEl, onNavSelect, onItemClick) {
   const headerHTML = `
     <header class="site-header" id="siteHeader">
-      <!-- Left: Brand Logo & Desktop Navigation Links -->
+      <!-- Left: Brand Logo -->
       <div class="logo-container">
         <a href="#" class="neonflix-logo" id="logoBtn">
           <div class="logo-icon neon-glow-box">
@@ -17,20 +19,23 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
         </a>
       </div>
 
-      <!-- Center: Search Trigger Input Bar -->
-      <div class="header-search-bar">
-        <button type="button" class="search-trigger-btn" id="headerSearchBtn">
-          <div style="display:flex; align-items:center; gap:0.6rem;">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18" style="color:var(--color-neon-red);">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
-            </svg>
-            <span>Search movies, shows, anime…</span>
-          </div>
-          <kbd class="search-kbd">Ctrl K</kbd>
-        </button>
+      <!-- Center: Instant Live Search Input Bar & Floating Dropdown -->
+      <div class="header-search-bar" id="headerSearchContainer">
+        <div class="header-search-input-wrapper">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18" style="color:var(--color-neon-red); flex-shrink:0;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+          </svg>
+          <input type="text" class="header-search-input" id="globalSearchInput" placeholder="Search movies, TV shows, anime..." autocomplete="off" />
+          <button type="button" class="search-clear-btn" id="searchClearBtn" style="display:none;" aria-label="Clear search">&times;</button>
+        </div>
+
+        <!-- Floating Live Search Results Dropdown -->
+        <div class="search-dropdown-menu" id="searchDropdownMenu">
+          <div class="search-dropdown-scroll" id="searchDropdownResults"></div>
+        </div>
       </div>
 
-      <!-- Right: Watchlist Quick Shortcut & Profile -->
+      <!-- Right: Watchlist Shortcut & Profile -->
       <div class="header-right-actions">
         <button type="button" class="icon-circle-btn" id="headerWatchlistBtn" title="My Watchlist" aria-label="Watchlist">
           <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
@@ -88,23 +93,118 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
 
   containerEl.innerHTML = headerHTML;
 
-  // Bind Header Event Listeners
-  const headerSearchBtn = document.getElementById('headerSearchBtn');
+  const searchInput = document.getElementById('globalSearchInput');
+  const searchClearBtn = document.getElementById('searchClearBtn');
+  const dropdownMenu = document.getElementById('searchDropdownMenu');
+  const dropdownResults = document.getElementById('searchDropdownResults');
   const mobileSearchBtn = document.getElementById('mobileSearchBtn');
   const headerWatchlistBtn = document.getElementById('headerWatchlistBtn');
   const logoBtn = document.getElementById('logoBtn');
+  const searchContainer = document.getElementById('headerSearchContainer');
 
-  headerSearchBtn?.addEventListener('click', onSearchClick);
-  mobileSearchBtn?.addEventListener('click', onSearchClick);
+  let debounceTimer = null;
 
-  // Keyboard shortcut Ctrl+K to open search modal
-  window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      onSearchClick();
+  function closeDropdown() {
+    dropdownMenu?.classList.remove('active');
+  }
+
+  function renderDropdownItems(results) {
+    if (!results || results.length === 0) {
+      dropdownResults.innerHTML = `
+        <div class="search-no-results">
+          <p>No results found for "${searchInput.value.trim()}"</p>
+        </div>
+      `;
+      dropdownMenu.classList.add('active');
+      return;
+    }
+
+    const html = results.map(item => `
+      <div class="search-result-item" data-id="${item.id}">
+        <img class="search-result-poster" src="${item.poster}" alt="${item.title}" loading="lazy" />
+        <div class="search-result-info">
+          <span class="search-result-title">${item.title}</span>
+          <div class="search-result-meta">
+            <span class="badge-type">${item.type}</span>
+            <span>${item.year}</span>
+            <span class="rating">★ ${item.rating}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    dropdownResults.innerHTML = html;
+    dropdownMenu.classList.add('active');
+
+    // Bind item click
+    dropdownResults.querySelectorAll('.search-result-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.getAttribute('data-id');
+        const item = results.find(r => r.id == id) || getAllMedia().find(i => i.id == id);
+        if (item) {
+          closeDropdown();
+          searchInput.value = '';
+          searchClearBtn.style.display = 'none';
+          onItemClick(item);
+        }
+      });
+    });
+  }
+
+  async function handleSearchInput() {
+    const query = searchInput.value.trim();
+    if (!query) {
+      searchClearBtn.style.display = 'none';
+      closeDropdown();
+      return;
+    }
+
+    searchClearBtn.style.display = 'block';
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      const results = await fetchLiveSearch(query);
+      renderDropdownItems(results);
+    }, 200);
+  }
+
+  searchInput?.addEventListener('input', handleSearchInput);
+  searchInput?.addEventListener('focus', () => {
+    if (searchInput.value.trim().length > 0) {
+      handleSearchInput();
     }
   });
 
+  searchClearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClearBtn.style.display = 'none';
+    closeDropdown();
+    searchInput.focus();
+  });
+
+  // Mobile search button handler
+  mobileSearchBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      searchInput?.focus();
+    }, 300);
+  });
+
+  // Click outside to close dropdown
+  document.addEventListener('click', (e) => {
+    if (searchContainer && !searchContainer.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+
+  // Keyboard Escape to close
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeDropdown();
+    }
+  });
+
+  // Navigation handlers
   logoBtn?.addEventListener('click', (e) => {
     e.preventDefault();
     setActiveTab('home');
@@ -122,9 +222,7 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
     });
   }
 
-  // Handle Mobile Nav Tab Switching
-  const allNavItems = document.querySelectorAll('.nav-tab-btn[data-tab]');
-  allNavItems.forEach(item => {
+  document.querySelectorAll('.nav-tab-btn[data-tab]').forEach(item => {
     item.addEventListener('click', () => {
       const tab = item.getAttribute('data-tab');
       if (tab) {
@@ -134,7 +232,7 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
     });
   });
 
-  // Scroll Header backdrop effect
+  // Scroll Header backdrop
   window.addEventListener('scroll', () => {
     const siteHeader = document.getElementById('siteHeader');
     if (window.scrollY > 30) {
@@ -144,4 +242,3 @@ export function renderHeader(containerEl, onNavSelect, onSearchClick) {
     }
   });
 }
-

@@ -16,14 +16,7 @@ export function renderMediaCard(item) {
         <img class="poster-image" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/13131e/ffffff?text=${encodeURIComponent(item.title)}'" />
         <div class="poster-overlay-gradient"></div>
         
-        <!-- Hover Play Button Circle -->
-        <div class="play-hover-overlay">
-          <div class="play-circle-btn">
-            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="26" width="26">
-              <path d="M8 5v14l11-7z"></path>
-            </svg>
-          </div>
-        </div>
+
 
         <div class="card-top-badges">
           <span class="rating-chip">
@@ -219,7 +212,7 @@ export function renderMediaCarouselSection(containerEl, title, items, type, load
   if (seeAllBtn && onSeeAllClick) {
     seeAllBtn.addEventListener('click', onSeeAllClick);
   }
-  
+
   function bindClicks(parentEl) {
     parentEl.querySelectorAll('.poster-card').forEach(card => {
       if (!card.dataset.bound) {
@@ -267,11 +260,11 @@ export function renderMediaCarouselSection(containerEl, title, items, type, load
     updateArrowVisibility();
 
     if (loading) return;
-    
+
     if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 350) {
       loading = true;
       currentPage++;
-      
+
       const loaderId = `loader-${type}-${currentPage}`;
       carousel.insertAdjacentHTML('beforeend', `
         <div class="poster-card spinner-card" id="${loaderId}" style="display:flex; align-items:center; justify-content:center; flex: 0 0 170px; width: 170px; height: 250px; background:var(--bg-card); border:1px dashed var(--border-light);">

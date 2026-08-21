@@ -9,13 +9,13 @@ import { renderGenreFilterBar, renderMediaGridSection, renderMediaCarouselSectio
 import { renderPlayerModal } from './components/playerModal.js';
 import { renderSearchModal } from './components/searchModal.js';
 import { renderWatchlistView, toggleWatchlist, isInWatchlist } from './components/watchlist.js';
-import { 
-  FEATURED_DATASET, 
+import {
+  FEATURED_DATASET,
   getMoviesList,
   getTvShowsList,
   getAnimeList,
   getKoreanList,
-  getAllMedia, 
+  getAllMedia,
   filterMedia,
   getApiKey,
   setApiKey,
@@ -42,8 +42,8 @@ async function openPlayerForItem(item) {
 
   // If TV series or anime, load complete real seasons & episodes from TMDB before opening
   if ((item.type === 'tv' || item.type === 'anime') && item.id < 1000000) {
-    const needsFetch = !item.seasons || item.seasons.length === 0 || 
-                       (item.seasons.length === 1 && item.seasons[0].episodes.length === 12 && item.seasons[0].season === 1);
+    const needsFetch = !item.seasons || item.seasons.length === 0 ||
+      (item.seasons.length === 1 && item.seasons[0].episodes.length === 12 && item.seasons[0].season === 1);
     if (needsFetch) {
       // Show loading toast while fetching from TMDB API
       const loadingToast = document.createElement('div');
@@ -159,19 +159,19 @@ function renderMainView() {
 
   renderGenreFilterBar(genreWrapper, GENRES_LIST, activeGenre, (selectedGenre) => {
     activeGenre = selectedGenre;
-    
+
     // Reset page count for this specific genre filter
     const pageKey = `${currentTab}_${selectedGenre}`;
     verticalPages[pageKey] = 1;
 
     if (selectedGenre !== 'all' && getApiKey()) {
       renderMainView(); // Draw structural grid container first
-      
+
       const gridSection = document.querySelector('.media-grid');
       if (gridSection) {
         gridSection.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; min-height:30vh; width:100%; grid-column: 1/-1;"><div style="border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--color-neon-cyan); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite;"></div></div>`;
       }
-      
+
       fetchLiveGenreMedia(currentTab === 'home' ? 'all' : currentTab, selectedGenre, 1).then(genreItems => {
         if (gridSection) {
           if (genreItems && genreItems.length > 0) {
@@ -239,9 +239,27 @@ async function loadLiveData() {
   }
 }
 
+function showToast(msg) {
+  let toastContainer = document.getElementById('toastContainer');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toastContainer';
+    toastContainer.className = 'toast-container';
+    document.body.appendChild(toastContainer);
+  }
+  const toast = document.createElement('div');
+  toast.className = 'toast-message show';
+  toast.innerHTML = `<span>${msg}</span>`;
+  toastContainer.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
 function initApp() {
   const headerApp = document.getElementById('headerApp');
-  
+
   // Render Top & Bottom Navbar
   renderHeader(headerApp, (selectedTab) => {
     currentTab = selectedTab;
@@ -249,7 +267,126 @@ function initApp() {
     activeSeeAllSection = null;
     verticalPages = { movie: 1, tv: 1, anime: 1, korean: 1 };
     renderMainView();
-  }, openSearchModal);
+  }, openPlayerForItem);
+
+  // Global Capture Handler for Poster Card Click / Double Click / Double Tap
+  let clickTimeout = null;
+  let lastClickTime = 0;
+  let lastClickedCard = null;
+
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.poster-card');
+    if (!card) return;
+
+    // Check if the click was on the watchlist button itself
+    const watchBtn = e.target.closest('.card-watchlist-btn');
+    if (watchBtn) {
+      e.stopPropagation();
+      e.preventDefault();
+      const id = watchBtn.getAttribute('data-id');
+      const allItems = getAllMedia();
+      const item = allItems.find(i => i.id == id);
+      if (item) {
+        const nowSaved = toggleWatchlist(item);
+        document.querySelectorAll(`.card-watchlist-btn[data-id="${id}"]`).forEach(b => {
+          b.classList.toggle('active', nowSaved);
+          const svg = b.querySelector('svg');
+          if (svg) svg.setAttribute('fill', nowSaved ? 'currentColor' : 'none');
+          b.setAttribute('title', nowSaved ? 'Remove from Watchlist' : 'Add to Watchlist');
+        });
+        showToast(nowSaved ? `Added "${item.title}" to Watchlist` : `Removed "${item.title}" from Watchlist`);
+        if (currentTab === 'watchlist' && !nowSaved) {
+          const cardEl = watchBtn.closest('.poster-card');
+          if (cardEl) {
+            cardEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+            cardEl.style.opacity = '0';
+            cardEl.style.transform = 'scale(0.85)';
+            setTimeout(() => {
+              cardEl.remove();
+              const mainContent = document.getElementById('mainContent');
+              if (mainContent && mainContent.querySelectorAll('.poster-card').length === 0) {
+                renderWatchlistView(mainContent, openPlayerForItem);
+              }
+            }, 250);
+          }
+        }
+      }
+      return;
+    }
+
+    // Intercept card body click
+    e.stopPropagation();
+    e.preventDefault();
+
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - lastClickTime;
+    const id = card.getAttribute('data-id');
+    const allItems = getAllMedia();
+    const item = allItems.find(i => i.id == id);
+    if (!item) return;
+
+    if (lastClickedCard === card && timeDiff < 300) {
+      // DOUBLE CLICK / DOUBLE TAP DETECTED
+      if (clickTimeout) {
+        clearTimeout(clickTimeout);
+        clickTimeout = null;
+      }
+      lastClickedCard = null;
+      lastClickTime = 0;
+
+      // Toggle watchlist state
+      const nowSaved = toggleWatchlist(item);
+
+      // Update watchlist buttons across page
+      document.querySelectorAll(`.card-watchlist-btn[data-id="${id}"]`).forEach(b => {
+        b.classList.toggle('active', nowSaved);
+        const svg = b.querySelector('svg');
+        if (svg) svg.setAttribute('fill', nowSaved ? 'currentColor' : 'none');
+        b.setAttribute('title', nowSaved ? 'Remove from Watchlist' : 'Add to Watchlist');
+      });
+
+      // Show Double Tap heart animation feedback
+      const imageWrap = card.querySelector('.poster-image-wrap');
+      if (imageWrap) {
+        imageWrap.querySelectorAll('.double-tap-feedback').forEach(el => el.remove());
+        const feedback = document.createElement('div');
+        feedback.className = 'double-tap-feedback';
+        feedback.innerHTML = `
+          <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="60" width="60">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+          </svg>
+        `;
+        imageWrap.appendChild(feedback);
+        setTimeout(() => feedback.remove(), 600);
+      }
+
+      showToast(nowSaved ? `Added "${item.title}" to Watchlist` : `Removed "${item.title}" from Watchlist`);
+
+      // If on watchlist tab and item was un-saved, smoothly remove its card
+      if (currentTab === 'watchlist' && !nowSaved) {
+        card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+          card.remove();
+          const mainContent = document.getElementById('mainContent');
+          if (mainContent && mainContent.querySelectorAll('.poster-card').length === 0) {
+            renderWatchlistView(mainContent, openPlayerForItem);
+          }
+        }, 250);
+      }
+    } else {
+      // First click: hold it for 250ms to check if second click follows
+      lastClickTime = currentTime;
+      lastClickedCard = card;
+
+      clickTimeout = setTimeout(() => {
+        openPlayerForItem(item);
+        lastClickedCard = null;
+        lastClickTime = 0;
+      }, 250);
+    }
+  }, true); // useCapture = true
 
   // 1. Instant 0ms First Render from Local Cache
   renderMainView();
@@ -284,13 +421,13 @@ function initApp() {
     // Check if scrolled near the bottom of the page
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 700) {
       loadingVertical = true;
-      
+
       const targetSec = activeSeeAllSection || currentTab;
       const pageKey = `${targetSec}_${activeGenre}`;
       if (!verticalPages[pageKey]) verticalPages[pageKey] = 1;
       verticalPages[pageKey]++;
       const nextPage = verticalPages[pageKey];
-      
+
       let loadFn = null;
       if (activeSeeAllSection) {
         if (activeSeeAllSection === 'movie') loadFn = fetchLiveTrendingMovies;
@@ -308,13 +445,13 @@ function initApp() {
       if (loadFn) {
         const mainContent = document.getElementById('mainContent');
         const gridContainer = mainContent.querySelector('.media-grid');
-        
+
         // Render simple inline spinner at bottom
         const loaderEl = document.createElement('div');
         loaderEl.id = 'vertical-loader';
         loaderEl.style = "display:flex; justify-content:center; padding: 2.5rem 0; width:100%; grid-column: 1 / -1;";
         loaderEl.innerHTML = `<div style="border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--color-neon-cyan); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite;"></div>`;
-        
+
         if (gridContainer) {
           gridContainer.appendChild(loaderEl);
         }
