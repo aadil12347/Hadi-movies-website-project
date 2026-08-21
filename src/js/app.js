@@ -508,5 +508,62 @@ function initApp() {
   });
 }
 
+// ----------------------------------------------------
+// PWA STANDALONE MOBILE APP REGISTRATION & PROMPT
+// ----------------------------------------------------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then((reg) => {
+      console.log('Neonflix PWA Service Worker registered:', reg.scope);
+    }).catch((err) => {
+      console.warn('PWA Service Worker registration failed:', err);
+    });
+  });
+}
+
+let deferredPwaPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+
+  let toastContainer = document.getElementById('toastContainer');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toastContainer';
+    toastContainer.className = 'toast-container';
+    document.body.appendChild(toastContainer);
+  }
+
+  const installToast = document.createElement('div');
+  installToast.className = 'toast-message show install-pwa-toast';
+  installToast.style.cssText = 'background:#0e0f18; border:1px solid var(--color-neon-red); box-shadow:0 10px 30px rgba(255,0,60,0.4); padding:0.85rem 1.1rem; border-radius:12px; margin-top:0.5rem;';
+  installToast.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; width:100%;">
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <span style="font-size:1.3rem;">📱</span>
+        <div style="display:flex; flex-direction:column;">
+          <span style="font-weight:800; font-size:0.88rem; color:#fff;">Install Neonflix App</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Add to home screen as standalone app</span>
+        </div>
+      </div>
+      <button type="button" id="pwaInstallBtn" style="background:linear-gradient(135deg, var(--color-primary-red), var(--color-neon-red)); color:#fff; font-weight:800; font-size:0.78rem; padding:0.45rem 0.95rem; border-radius:6px; cursor:pointer; border:none; box-shadow:0 0 12px rgba(255,0,60,0.6);">INSTALL</button>
+    </div>
+  `;
+  toastContainer.appendChild(installToast);
+
+  installToast.querySelector('#pwaInstallBtn')?.addEventListener('click', () => {
+    installToast.remove();
+    if (deferredPwaPrompt) {
+      deferredPwaPrompt.prompt();
+      deferredPwaPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          showToast('Installing Neonflix App to Home Screen...');
+        }
+        deferredPwaPrompt = null;
+      });
+    }
+  });
+});
+
 document.addEventListener('DOMContentLoaded', initApp);
 
