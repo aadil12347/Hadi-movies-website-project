@@ -12,7 +12,7 @@ export function renderSearchModal(containerEl, onItemClick) {
       <div class="modal-content-box search-modal-container">
         <!-- Search Input Header -->
         <div class="search-input-header">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="22" width="22" style="color:var(--color-neon-cyan); flex-shrink:0;">
+          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="22" width="22" style="color:var(--color-neon-red); flex-shrink:0;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
           </svg>
           <input type="text" id="modalSearchInput" placeholder="Search title, genre, cast..." autofocus />

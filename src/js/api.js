@@ -521,7 +521,7 @@ export async function fetchLiveTrendingMovies(page = 1) {
     return MOVIES_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}&page=${page}`);
+    const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}&page=${page}&language=hi`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'movie'));
@@ -546,7 +546,7 @@ export async function fetchLivePopularTv(page = 1) {
     return TV_SHOWS_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&page=${page}`);
+    const res = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&page=${page}&language=hi`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'tv'));
@@ -571,7 +571,7 @@ export async function fetchLiveAnime(page = 1) {
     return ANIME_LIST;
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`);
+    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}&language=hi`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'tv'));
@@ -596,7 +596,7 @@ export async function fetchLiveKoreanMedia(page = 1) {
     return [];
   }
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}`);
+    const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}&language=hi`);
     const data = await res.json();
     if (data && data.results) {
       const items = data.results.map(item => mapTmdbItem(item, 'tv'));
@@ -619,7 +619,7 @@ export async function fetchLiveSearch(query) {
   const apiKey = getApiKey();
   if (!apiKey) return searchMedia(query);
   try {
-    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=hi`);
     const data = await res.json();
     if (data && data.results) {
       return data.results
@@ -657,24 +657,24 @@ export async function fetchLiveGenreMedia(type, genre, page = 1) {
 
     if (genreId === 'ko' || genre.toLowerCase() === 'korean') {
       mediaType = 'tv';
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}`;
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_original_language=ko&sort_by=popularity.desc&page=${page}&language=hi`;
     } else if (type === 'movie') {
       mediaType = 'movie';
-      url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}`;
+      url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi`;
       if (genreId) url += `&with_genres=${genreId}`;
     } else if (type === 'tv') {
       mediaType = 'tv';
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}`;
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi`;
       if (genreId) url += `&with_genres=${genreId}`;
     } else if (type === 'anime') {
       mediaType = 'tv';
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`;
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}&language=hi`;
     } else {
       // For type === 'all' or 'home'
       const isNumGenre = typeof genreId === 'number';
       const [moviesRes, tvRes] = await Promise.all([
-        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json()),
-        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json())
+        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${apiKey}&sort_by=popularity.desc&page=${page}&language=hi${isNumGenre ? `&with_genres=${genreId}` : ''}`).then(r => r.json())
       ]);
 
       const movieItems = (moviesRes.results || []).map(item => mapTmdbItem(item, 'movie'));
@@ -717,6 +717,37 @@ export async function fetchMovieTrailer(tmdbId, type = 'movie') {
     }
   } catch (e) {
     console.error("Fetch TMDB trailer failed", e);
+  }
+  return null;
+}
+
+export async function fetchTvDetails(tmdbId) {
+  const apiKey = getApiKey();
+  if (!apiKey || !tmdbId) return null;
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${apiKey}&language=hi`);
+    const data = await res.json();
+    if (data && data.seasons) {
+      const seasons = data.seasons
+        .filter(s => s.season_number > 0 && s.episode_count > 0)
+        .map(s => {
+          const episodes = [];
+          for (let i = 1; i <= s.episode_count; i++) {
+            episodes.push(i);
+          }
+          return {
+            season: s.season_number,
+            episodes: episodes
+          };
+        });
+      return {
+        seasons: seasons,
+        overview: data.overview || '',
+        genres: data.genres ? data.genres.map(g => g.name).slice(0, 3) : []
+      };
+    }
+  } catch (e) {
+    console.error("Fetch TV details failed", e);
   }
   return null;
 }

@@ -6,12 +6,25 @@ import { getAllMedia } from '../api.js';
 // ----------------------------------------------------
 
 export function renderMediaCard(item) {
+  const isMovie = item.type === 'movie';
+  const isAnime = item.type === 'anime';
+  const typeLabel = isMovie ? 'Movie' : (isAnime ? 'Anime' : 'TV Series');
+
   return `
     <div class="poster-card" data-id="${item.id}" data-type="${item.type}">
       <div class="poster-image-wrap">
-        <img class="poster-image" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/15151e/ffffff?text=${encodeURIComponent(item.title)}'" />
+        <img class="poster-image" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/13131e/ffffff?text=${encodeURIComponent(item.title)}'" />
         <div class="poster-overlay-gradient"></div>
         
+        <!-- Hover Play Button Circle -->
+        <div class="play-hover-overlay">
+          <div class="play-circle-btn">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="26" width="26">
+              <path d="M8 5v14l11-7z"></path>
+            </svg>
+          </div>
+        </div>
+
         <div class="card-top-badges">
           <span class="rating-chip">
             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="12" width="12">
@@ -19,6 +32,7 @@ export function renderMediaCard(item) {
             </svg>
             ${item.rating}
           </span>
+          <span class="type-chip">${typeLabel}</span>
         </div>
       </div>
 
@@ -26,22 +40,37 @@ export function renderMediaCard(item) {
         <h3 class="card-title" title="${item.title}">${item.title}</h3>
         <div class="card-meta-row">
           <span>${item.year}</span>
+          <span class="hd-badge">4K ULTRA</span>
         </div>
       </div>
     </div>
   `;
 }
 
+const GENRE_ICONS = {
+  'all': '🔥',
+  'Action': '💥',
+  'Sci-Fi': '🚀',
+  'Drama': '🎭',
+  'Adventure': '🧗',
+  'Anime': '⚡',
+  'Korean': '🇰🇷',
+  'Comedy': '🤣',
+  'Horror': '👻',
+  'Fantasy': '🔮',
+  'Crime': '🔍'
+};
+
 export function renderGenreFilterBar(containerEl, genres, activeGenre, onSelectGenre) {
   const html = `
     <div class="category-filter-section">
       <div class="genre-scroll-bar">
         <button type="button" class="genre-pill ${activeGenre === 'all' ? 'active' : ''}" data-genre="all">
-          🏠 Home
+          🔥 All Top Picks
         </button>
         ${genres.map(g => `
           <button type="button" class="genre-pill ${activeGenre === g ? 'active' : ''}" data-genre="${g}">
-            ${g}
+            <span>${GENRE_ICONS[g] || '🍿'}</span> ${g}
           </button>
         `).join('')}
       </div>

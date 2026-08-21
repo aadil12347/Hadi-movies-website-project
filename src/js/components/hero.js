@@ -15,46 +15,64 @@ export function renderHeroSlider(containerEl, items, onPlayClick, onDetailsClick
     const isMovie = item.type === 'movie';
     const isAnime = item.type === 'anime';
     const badgeLabel = isMovie ? 'Movie' : (isAnime ? 'Anime' : 'TV Series');
+    const genreText = item.genres ? item.genres.slice(0, 3).join(' • ') : 'Action • Thriller';
 
     return `
       <section class="hero-slider-section" id="heroSection">
         <!-- Backdrop Banner Image -->
         <div class="hero-backdrop" id="heroBackdrop" style="background-image: url('${item.backdrop}')"></div>
         
-        <!-- Gradient Grayscale Overlays -->
+        <!-- Deep Cinematic Dark Grayscale & Vignette Overlays -->
         <div class="hero-overlay"></div>
+        <div class="hero-vignette-overlay"></div>
 
         <!-- Featured Media Info -->
         <div class="hero-content-container">
-          <div class="hero-badge-row">
-            <span class="badge-tag badge-neon">#${currentIndex + 1} Featured</span>
-            <span class="badge-tag badge-quality">${badgeLabel}</span>
-            <span class="badge-tag badge-rating">
-              <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="14" width="14">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
-              </svg>
-              ${item.rating}
-            </span>
-            <span class="badge-tag badge-quality">${item.year}</span>
-          </div>
+          <div class="hero-glass-card">
+            <div class="hero-badge-row">
+              <span class="badge-tag badge-neon">
+                <span class="pulse-dot"></span>
+                #${currentIndex + 1} Trending Now
+              </span>
+              <span class="badge-tag badge-quality">${badgeLabel}</span>
+              <span class="badge-tag badge-rating">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="14" width="14">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+                </svg>
+                IMDb ${item.rating}
+              </span>
+              <span class="badge-tag badge-quality">${item.year}</span>
+              <span class="badge-tag badge-hdr">4K ULTRA HD</span>
+            </div>
 
-          <h1 class="hero-title">${item.title}</h1>
-          
-          <p class="hero-overview">${item.overview}</p>
+            <h1 class="hero-title">${item.title}</h1>
+            
+            <div class="hero-genres-row">
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="14" width="14" style="color:var(--color-neon-red);">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+              </svg>
+              <span>${genreText}</span>
+            </div>
 
-          <div class="hero-actions-row">
-            <button type="button" class="btn-primary-play" id="heroPlayBtn">
-              <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="22" width="22">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-              <span>Watch Now</span>
-            </button>
-            <button type="button" class="btn-secondary-info" id="heroInfoBtn">
-              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span>Details</span>
-            </button>
+            <p class="hero-overview">${item.overview}</p>
+
+            <div class="hero-actions-row">
+              <button type="button" class="btn-primary-play" id="heroPlayBtn">
+                <div class="play-icon-glow">
+                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="22" width="22">
+                    <path d="M8 5v14l11-7z"></path>
+                  </svg>
+                </div>
+                <span>Stream Now</span>
+              </button>
+              
+              <button type="button" class="btn-secondary-info" id="heroInfoBtn">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="20" width="20">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Trailer & Details</span>
+              </button>
+            </div>
           </div>
         </div>
 

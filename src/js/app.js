@@ -5,7 +5,7 @@
 
 import { renderHeader } from './components/header.js';
 import { renderHeroSlider } from './components/hero.js';
-import { renderGenreFilterBar, renderMediaGridSection, renderMediaCarouselSection } from './components/movieGrid.js';
+import { renderGenreFilterBar, renderMediaGridSection, renderMediaCarouselSection, renderMediaCard } from './components/movieGrid.js';
 import { renderPlayerModal } from './components/playerModal.js';
 import { renderSearchModal } from './components/searchModal.js';
 import { renderWatchlistView, toggleWatchlist, isInWatchlist } from './components/watchlist.js';
@@ -24,7 +24,8 @@ import {
   fetchLiveAnime,
   fetchLiveKoreanMedia,
   fetchLiveSearch,
-  fetchLiveGenreMedia
+  fetchLiveGenreMedia,
+  fetchTvDetails
 } from './api.js';
 
 let currentTab = 'home';
@@ -35,9 +36,43 @@ let loadingVertical = false;
 
 const GENRES_LIST = ['Action', 'Sci-Fi', 'Drama', 'Adventure', 'Anime', 'Korean', 'Comedy', 'Horror', 'Fantasy', 'Crime'];
 
-function openPlayerForItem(item) {
+async function openPlayerForItem(item) {
   const playerContainer = document.getElementById('playerModalContainer');
   const isSaved = isInWatchlist(item.id);
+
+  // If TV series or anime, load complete real seasons & episodes from TMDB before opening
+  if ((item.type === 'tv' || item.type === 'anime') && item.id < 1000000) {
+    const needsFetch = !item.seasons || item.seasons.length === 0 || 
+                       (item.seasons.length === 1 && item.seasons[0].episodes.length === 12 && item.seasons[0].season === 1);
+    if (needsFetch) {
+      // Show loading toast while fetching from TMDB API
+      const loadingToast = document.createElement('div');
+      loadingToast.className = 'toast-message toast-info show';
+      loadingToast.innerHTML = `
+        <div class="toast-content">
+          <div style="border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--color-neon-cyan); border-radius: 50%; width: 14px; height: 14px; animation: spin 0.8s linear infinite;"></div>
+          <span>Loading seasons data from TMDB...</span>
+        </div>
+      `;
+      let toastContainer = document.getElementById('toastContainer');
+      if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+      }
+      toastContainer.appendChild(loadingToast);
+
+      const details = await fetchTvDetails(item.id);
+      loadingToast.remove();
+
+      if (details) {
+        item.seasons = details.seasons;
+        if (details.overview) item.overview = details.overview;
+        if (details.genres && details.genres.length > 0) item.genres = details.genres;
+      }
+    }
+  }
 
   renderPlayerModal(playerContainer, item, (toggledItem) => {
     toggleWatchlist(toggledItem);
@@ -140,30 +175,7 @@ function renderMainView() {
       fetchLiveGenreMedia(currentTab === 'home' ? 'all' : currentTab, selectedGenre, 1).then(genreItems => {
         if (gridSection) {
           if (genreItems && genreItems.length > 0) {
-            gridSection.innerHTML = genreItems.map(item => `
-                <div class="poster-card" data-id="${item.id}" data-type="${item.type}">
-                  <div class="poster-image-wrap">
-                    <img class="poster-image" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/15151e/ffffff?text=${encodeURIComponent(item.title)}'" />
-                    <div class="poster-overlay-gradient"></div>
-                    
-                    <div class="card-top-badges">
-                      <span class="rating-chip">
-                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="12" width="12">
-                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
-                        </svg>
-                        ${item.rating}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="card-content-info">
-                    <h3 class="card-title" title="${item.title}">${item.title}</h3>
-                    <div class="card-meta-row">
-                      <span>${item.year}</span>
-                    </div>
-                  </div>
-                </div>
-              `).join('');
+            gridSection.innerHTML = genreItems.map(item => renderMediaCard(item)).join('');
 
             // Bind click handler for newly appended grid items
             gridSection.querySelectorAll('.poster-card').forEach(card => {
@@ -312,30 +324,7 @@ function initApp() {
           loaderEl.remove();
 
           if (newItems && newItems.length > 0 && gridContainer) {
-            const cardsHTML = newItems.map(item => `
-                <div class="poster-card" data-id="${item.id}" data-type="${item.type}">
-                  <div class="poster-image-wrap">
-                    <img class="poster-image" src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/15151e/ffffff?text=${encodeURIComponent(item.title)}'" />
-                    <div class="poster-overlay-gradient"></div>
-                    
-                    <div class="card-top-badges">
-                      <span class="rating-chip">
-                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="12" width="12">
-                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
-                        </svg>
-                        ${item.rating}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="card-content-info">
-                    <h3 class="card-title" title="${item.title}">${item.title}</h3>
-                    <div class="card-meta-row">
-                      <span>${item.year}</span>
-                    </div>
-                  </div>
-                </div>
-              `).join('');
+            const cardsHTML = newItems.map(item => renderMediaCard(item)).join('');
 
             gridContainer.insertAdjacentHTML('beforeend', cardsHTML);
 

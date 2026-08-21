@@ -1,9 +1,32 @@
-// ----------------------------------------------------
-// VIDEO PLAYER MODAL & SEASON/EPISODE SELECTOR COMPONENT
-// Multi-server video stream player with episode selection & TMDB trailer fetching
-// ----------------------------------------------------
-
 import { fetchMovieTrailer, getApiKey } from '../api.js';
+
+export function showToast(message, type = 'info') {
+  let toastContainer = document.getElementById('toastContainer');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toastContainer';
+    toastContainer.className = 'toast-container';
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast-message toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-content">
+      <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" height="18" width="18">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>${message}</span>
+    </div>
+  `;
+
+  toastContainer.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
 
 export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedInWatchlist) {
   let currentServerIndex = 0;
@@ -15,15 +38,31 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
 
   if (!item.servers) {
     item.servers = [
-      { name: "Server 1 (Fast)", url: `https://vidsrc.to/embed/${item.type === 'movie' ? 'movie' : 'tv'}/${item.id}` }
+      { id: "peachify", name: "🍑 Server 1 (Peachify)", url: "" }
     ];
   }
 
   const isSeriesOrAnime = (item.type === 'tv' || item.type === 'anime') && item.seasons && item.seasons.length > 0;
 
+  function getEmbedUrl(serverIdx, seasonNum, epNum) {
+    const srv = item.servers[serverIdx];
+    if (!srv) return '';
+
+    const isMovie = item.type === 'movie';
+    const tmdbId = item.id;
+
+    if (srv.id === 'peachify') {
+      return isMovie
+        ? `https://peachify.pro/embed/movie/${tmdbId}`
+        : `https://peachify.pro/embed/tv/${tmdbId}/${seasonNum}/${epNum}`;
+    }
+    
+    return srv.url;
+  }
+
   function getActiveEmbedUrl() {
     if (item.servers && item.servers[currentServerIndex]) {
-      return item.servers[currentServerIndex].url;
+      return getEmbedUrl(currentServerIndex, currentSeasonIndex + 1, currentEpisodeNumber);
     }
     return `https://www.youtube.com/embed/${item.trailerKey || 'Way9Dexny3w'}?autoplay=1`;
   }
@@ -40,6 +79,10 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
 
           <!-- Video Player Box -->
           <div class="player-container">
+            <div class="player-loader-spinner" id="playerLoaderSpinner">
+              <div class="spinner"></div>
+              <span>Connecting stream source...</span>
+            </div>
             <iframe 
               id="videoIframe"
               src="${getActiveEmbedUrl()}" 
@@ -53,13 +96,11 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
           <div class="player-controls-bar">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
               <div>
-                <h2 style="font-size:1.35rem; font-weight:800; color:#fff; line-height:1.3;">${item.title}</h2>
-                <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.88rem; color:var(--text-muted); margin-top:0.35rem;">
-                  <span>${item.year}</span>
-                  <span>•</span>
-                  <span style="color:#ffc107; font-weight:700;">★ ${item.rating}</span>
-                  <span>•</span>
-                  <span>${item.genres ? item.genres.join(', ') : ''}</span>
+                <h2 style="font-size:1.4rem; font-weight:800; color:#fff; line-height:1.3;">${item.title}</h2>
+                <div style="display:flex; align-items:center; gap:0.75rem; font-size:0.88rem; color:var(--text-muted); margin-top:0.4rem; flex-wrap:wrap;">
+                  <span class="badge-tag badge-quality">${item.year}</span>
+                  <span class="badge-tag badge-rating">★ IMDb ${item.rating}</span>
+                  <span style="color:var(--text-dim);">${item.genres ? item.genres.join(' • ') : ''}</span>
                 </div>
               </div>
 
@@ -84,7 +125,10 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
 
             <!-- Server Selector Pills -->
             <div class="server-selector-row" id="serversRow">
-              <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">SELECT SERVER:</span>
+              <span class="server-row-label">
+                <span class="server-status-dot"></span>
+                SERVERS:
+              </span>
               ${item.servers.map((srv, idx) => `
                 <button type="button" class="server-btn ${idx === currentServerIndex ? 'active' : ''}" data-index="${idx}">
                   ${srv.name}
@@ -141,6 +185,19 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
     if (e.target === backdrop) closeModal();
   });
 
+  // Helper to change iframe source and show loading spinner
+  function changeIframeSource(url) {
+    const spinner = document.getElementById('playerLoaderSpinner');
+    if (spinner) spinner.style.display = 'flex';
+    iframe.src = url;
+  }
+
+  // Hide loading spinner when iframe completes loading
+  iframe.addEventListener('load', () => {
+    const spinner = document.getElementById('playerLoaderSpinner');
+    if (spinner) spinner.style.display = 'none';
+  });
+
   // Load official YouTube Trailer from TMDB dynamically
   if (getApiKey()) {
     fetchMovieTrailer(item.id, item.type).then(trailerKey => {
@@ -150,13 +207,16 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
         
         // Add Trailer server option if not already present
         if (!item.servers.some(s => s.name.includes('Trailer'))) {
-          item.servers.push({ name: '🎬 Official Trailer', url: trailerUrl });
+          item.servers.push({ id: 'trailer', name: '🎬 Official Trailer', url: trailerUrl });
           
           // Re-render server buttons row
           const serversRow = document.getElementById('serversRow');
           if (serversRow) {
             serversRow.innerHTML = `
-              <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">SELECT SERVER:</span>
+              <span class="server-row-label">
+                <span class="server-status-dot"></span>
+                SERVERS:
+              </span>
               ${item.servers.map((srv, idx) => `
                 <button type="button" class="server-btn ${idx === currentServerIndex ? 'active' : ''}" data-index="${idx}">
                   ${srv.name}
@@ -171,14 +231,16 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
                 currentServerIndex = idx;
                 serversRow.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                if (item.servers[idx]) iframe.src = item.servers[idx].url;
+                if (item.servers[idx]) changeIframeSource(getEmbedUrl(idx, currentSeasonIndex + 1, currentEpisodeNumber));
+                showToast(`Switched to ${item.servers[idx].name}`);
               });
             });
           }
         }
 
         playTrailerBtn?.addEventListener('click', () => {
-          iframe.src = trailerUrl;
+          changeIframeSource(trailerUrl);
+          showToast('Playing official trailer');
           const trailerIdx = item.servers.findIndex(s => s.name.includes('Trailer'));
           if (trailerIdx !== -1) {
             currentServerIndex = trailerIdx;
@@ -204,16 +266,40 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
       btn.classList.add('active');
 
       if (item.servers && item.servers[idx]) {
-        iframe.src = item.servers[idx].url;
+        changeIframeSource(getActiveEmbedUrl());
+        showToast(`Switched stream server to Option ${idx + 1}`);
       }
     });
   });
+
+  // Episode click binder helper
+  function bindEpisodeClicks(grid) {
+    grid.querySelectorAll('.episode-btn').forEach(epBtn => {
+      epBtn.addEventListener('click', () => {
+        const epNum = parseInt(epBtn.getAttribute('data-ep'), 10);
+        currentEpisodeNumber = epNum;
+        
+        grid.querySelectorAll('.episode-btn').forEach(b => b.classList.remove('active'));
+        epBtn.classList.add('active');
+        
+        changeIframeSource(getActiveEmbedUrl());
+        showToast(`Loading Season ${currentSeasonIndex + 1} Episode ${epNum}`);
+      });
+    });
+  }
+
+  // Bind initial episode buttons if they exist
+  const initialEpisodesGrid = document.getElementById('episodesGrid');
+  if (initialEpisodesGrid) {
+    bindEpisodeClicks(initialEpisodesGrid);
+  }
 
   // Season button listeners
   containerEl.querySelectorAll('.season-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       const seasonIdx = parseInt(btn.getAttribute('data-season-idx'), 10);
       currentSeasonIndex = seasonIdx;
+      currentEpisodeNumber = 1; // reset episode to 1 on season change
       
       containerEl.querySelectorAll('.season-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -227,13 +313,11 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
           </button>
         `).join('');
 
-        episodesGrid.querySelectorAll('.episode-btn').forEach(epBtn => {
-          epBtn.addEventListener('click', () => {
-            episodesGrid.querySelectorAll('.episode-btn').forEach(b => b.classList.remove('active'));
-            epBtn.classList.add('active');
-          });
-        });
+        bindEpisodeClicks(episodesGrid);
       }
+      
+      changeIframeSource(getActiveEmbedUrl());
+      showToast(`Loading Season ${seasonIdx + 1}`);
     });
   });
 
@@ -248,5 +332,7 @@ export function renderPlayerModal(containerEl, item, onToggleWatchlist, isSavedI
     if (svgPath) {
       watchlistBtn.querySelector('svg').setAttribute('fill', updatedStatus ? '#00f2fe' : 'none');
     }
+
+    showToast(updatedStatus ? `Added "${item.title}" to Watchlist` : `Removed "${item.title}" from Watchlist`);
   });
 }

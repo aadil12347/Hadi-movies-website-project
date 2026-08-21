@@ -10,6 +10,7 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -17,11 +18,12 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import java.io.ByteArrayInputStream;
 
 public class MainActivity extends AppCompatActivity {
 
-    // UPDATE THIS URL TO YOUR DEPLOYED LIVE WEBSITE OR LOCAL IP ADDRESS (e.g. http://192.168.1.10:5173 or https://your-app.vercel.app)
-    public static final String WEBVIEW_URL = "http://192.168.1.10:5173/";
+    // LIVE PUBLISHED WEBSITE URL (Auto-syncs any future updates without rebuilding APK)
+    public static final String WEBVIEW_URL = "https://aadil12347.github.io/Hadi-movies-website-project/";
 
     private WebView mWebView;
     private SwipeRefreshLayout mSwipeRefresh;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
+        webSettings.setSupportMultipleWindows(false);
 
         // Swipe Pull-to-Refresh
         mSwipeRefresh.setOnRefreshListener(() -> mWebView.reload());
@@ -59,6 +63,34 @@ public class MainActivity extends AppCompatActivity {
 
         // Client for handling URL redirects within app
         mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                if (AdBlocker.isAd(url)) {
+                    return AdBlocker.createEmptyResource();
+                }
+                return super.shouldInterceptRequest(view, request);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                if (AdBlocker.isAd(url)) {
+                    return true;
+                }
+                if (url.startsWith("https://aadil12347.github.io/") || 
+                    url.contains("localhost") || 
+                    url.contains("192.168.") || 
+                    url.contains("streamsrc.cc") || 
+                    url.contains("peachify.pro") || 
+                    url.contains("vidsrc") || 
+                    url.contains("multiembed") ||
+                    url.contains("youtube.com")) {
+                    return false;
+                }
+                return true; // block other external redirects
+            }
+
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
@@ -127,6 +159,33 @@ public class MainActivity extends AppCompatActivity {
             mWebView.goBack();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    private static class AdBlocker {
+        private static final String[] AD_KEYWORDS = {
+            "adsterra", "popads", "onclickads", "exoclick", "juicyads", "yllix",
+            "yandex.ru/clck", "adservice.google", "doubleclick.net", "google-analytics",
+            "analytics.js", "googletagmanager", "adsystem", "popunder", "adsterrapixel",
+            "ad-delivery", "nativeads", "banners", "pop-under", "a.peachify.pro",
+            "propellerads", "adcash", "popcash", "revenuehits", "bidvertiser",
+            "adform", "smartadserver", "adnxs", "rubiconproject", "pubmatic",
+            "openx", "casalemedia", "outbrain", "taboola", "criteo", "mgid"
+        };
+
+        public static boolean isAd(String url) {
+            if (url == null) return false;
+            String lowerUrl = url.toLowerCase();
+            for (String keyword : AD_KEYWORDS) {
+                if (lowerUrl.contains(keyword)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static WebResourceResponse createEmptyResource() {
+            return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
         }
     }
 }
